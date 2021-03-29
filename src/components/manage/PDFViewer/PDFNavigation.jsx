@@ -5,8 +5,8 @@ import { Icon } from '@plone/volto/components';
 import prevSVG from '@plone/volto/icons/left-key.svg';
 import nextSVG from '@plone/volto/icons/right-key.svg';
 
-export const CustomPrevButton = props => {
-  const { page, pages, handlePrevClick } = props;
+export const CustomPrevButton = (props) => {
+  const { page, handlePrevClick } = props;
   if (page === 1) {
     return (
       <button className="pdf-toolbar-btn disabled-btn">
@@ -32,7 +32,7 @@ CustomPrevButton.propTypes = {
   handlePrevClick: PropTypes.func.isRequired,
 };
 
-export const CustomNextButton = props => {
+export const CustomNextButton = (props) => {
   const { page, pages, handleNextClick } = props;
   if (page === pages) {
     return (
@@ -59,7 +59,7 @@ CustomNextButton.propTypes = {
   handleNextClick: PropTypes.func.isRequired,
 };
 
-export const CustomPages = props => {
+export const CustomPages = (props) => {
   const { page, pages } = props;
   return (
     <p className="pdf-pages">
@@ -72,7 +72,7 @@ CustomPages.propTypes = {
   pages: PropTypes.number.isRequired,
 };
 
-const CustomNavigation = props => {
+const CustomNavigation = (props) => {
   const { page, pages, handlePrevClick, handleNextClick } = props;
 
   return (

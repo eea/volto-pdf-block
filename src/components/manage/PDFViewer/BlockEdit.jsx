@@ -3,46 +3,46 @@
  * @module components/manage/PDFViewer/BlockEdit
  */
 
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { compose } from "redux";
-import { readAsDataURL } from "promise-file-reader";
-import { Button, Input, Message, Segment } from "semantic-ui-react";
-import { defineMessages, injectIntl, FormattedMessage } from "react-intl";
-import loadable from "@loadable/component";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
+import { readAsDataURL } from 'promise-file-reader';
+import { Button, Input, Message, Segment } from 'semantic-ui-react';
+import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
+import loadable from '@loadable/component';
 
-import config from "@plone/volto/registry";
+import config from '@plone/volto/registry';
 
-import { Icon, SidebarPortal, TextWidget } from "@plone/volto/components";
-import { createContent } from "@plone/volto/actions";
-import { flattenToAppURL, getBaseUrl } from "@plone/volto/helpers";
+import { Icon, SidebarPortal, TextWidget } from '@plone/volto/components';
+import { createContent } from '@plone/volto/actions';
+import { flattenToAppURL, getBaseUrl } from '@plone/volto/helpers';
 
-import CustomNavigation from "./PDFNavigation";
-import "./pdf-styling.css";
+import CustomNavigation from './PDFNavigation';
+import './pdf-styling.css';
 
-import pdfSVG from "./pdf-icon.svg";
-import clearSVG from "@plone/volto/icons/clear.svg";
-import navTreeSVG from "@plone/volto/icons/nav.svg";
-import aheadSVG from "@plone/volto/icons/ahead.svg";
+import pdfSVG from './pdf-icon.svg';
+import clearSVG from '@plone/volto/icons/clear.svg';
+import navTreeSVG from '@plone/volto/icons/nav.svg';
+import aheadSVG from '@plone/volto/icons/ahead.svg';
 
-const Dropzone = loadable(() => import("react-dropzone"));
-const LoadablePDFViewer = loadable(() => import("./PDFViewer"), {
+const Dropzone = loadable(() => import('react-dropzone'));
+const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
   fallback: () => <div>Loading PDF file...</div>,
 });
 
 const messages = defineMessages({
   ImageBlockInputPlaceholder: {
-    id: "Browse the site, drop a PDF document or type an URL",
-    defaultMessage: "Browse the site, drop a PDF document or type an URL",
+    id: 'Browse the site, drop a PDF document or type an URL',
+    defaultMessage: 'Browse the site, drop a PDF document or type an URL',
   },
   Origin: {
-    id: "Origin",
-    defaultMessage: "Origin",
+    id: 'Origin',
+    defaultMessage: 'Origin',
   },
   externalURL: {
-    id: "External URL",
-    defaultMessage: "External URL",
+    id: 'External URL',
+    defaultMessage: 'External URL',
   },
 });
 
@@ -80,23 +80,23 @@ class Edit extends Component {
 
   state = {
     uploading: false,
-    url: "",
+    url: '',
     currentPage: 1,
     pageCount: 0,
     dragging: false,
   };
 
   componentDidMount() {
-    const pdfWrapper = document.querySelector(".pdf-wrapper");
+    const pdfWrapper = document.querySelector('.pdf-wrapper');
     if (pdfWrapper) {
-      pdfWrapper.addEventListener("wheel", this.handleWheel);
+      pdfWrapper.addEventListener('wheel', this.handleWheel);
     }
   }
 
   componentWillUnmount() {
-    const pdfWrapper = document.querySelector(".pdf-wrapper");
+    const pdfWrapper = document.querySelector('.pdf-wrapper');
     if (pdfWrapper) {
-      pdfWrapper.removeEventListener("wheel", this.handleWheel);
+      pdfWrapper.removeEventListener('wheel', this.handleWheel);
     }
   }
 
@@ -141,7 +141,7 @@ class Edit extends Component {
       });
       this.props.onChangeBlock(this.props.block, {
         ...this.props.data,
-        url: nextProps.content["@id"],
+        url: nextProps.content['@id'],
       });
     }
   }
@@ -160,12 +160,12 @@ class Edit extends Component {
     readAsDataURL(file).then((data) => {
       const fields = data.match(/^data:(.*);(.*),(.*)$/);
       this.props.createContent(getBaseUrl(this.props.pathname), {
-        "@type": "Image",
+        '@type': 'Image',
         title: file.name,
         image: {
           data: fields[3],
           encoding: fields[2],
-          "content-type": fields[1],
+          'content-type': fields[1],
           filename: file.name,
         },
       });
@@ -211,12 +211,12 @@ class Edit extends Component {
     readAsDataURL(file[0]).then((data) => {
       const fields = data.match(/^data:(.*);(.*),(.*)$/);
       this.props.createContent(getBaseUrl(this.props.pathname), {
-        "@type": "File",
+        '@type': 'File',
         title: file[0].name,
         file: {
           data: fields[3],
           encoding: fields[2],
-          "content-type": fields[1],
+          'content-type': fields[1],
           filename: file[0].name,
         },
       });
@@ -232,11 +232,11 @@ class Edit extends Component {
    * @returns {undefined}
    */
   onKeyDownVariantMenuForm = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
       this.onSubmitUrl();
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       e.preventDefault();
       e.stopPropagation();
       // TODO: Do something on ESC key
@@ -282,7 +282,7 @@ class Edit extends Component {
                 onClick={() =>
                   this.props.onChangeBlock(this.props.block, {
                     ...this.props.data,
-                    url: "",
+                    url: '',
                   })
                 }
               >
@@ -344,7 +344,7 @@ class Edit extends Component {
                             onKeyDown: this.onKeyDownVariantMenuForm,
                             onChange: this.onChangeUrl,
                             placeholder: this.props.intl.formatMessage(
-                              messages.ImageBlockInputPlaceholder
+                              messages.ImageBlockInputPlaceholder,
                             ),
                             onClick: (e) => e.stopPropagation(),
                           })}
@@ -389,7 +389,7 @@ class Edit extends Component {
             {data.url && (
               <>
                 <Segment className="sidebar-metadata-container" secondary>
-                  {data.url.split("/").slice(-1)[0]}
+                  {data.url.split('/').slice(-1)[0]}
                   <img src={pdfSVG} alt="" />
                 </Segment>
                 <Segment className="form sidebar-image-data">
@@ -398,10 +398,10 @@ class Edit extends Component {
                       id="Origin"
                       title={this.props.intl.formatMessage(messages.Origin)}
                       required={false}
-                      value={data.url.split("/").slice(-1)[0]}
+                      value={data.url.split('/').slice(-1)[0]}
                       icon={navTreeSVG}
                       iconAction={() =>
-                        this.props.openObjectBrowser({ mode: "link" })
+                        this.props.openObjectBrowser({ mode: 'link' })
                       }
                       onChange={() => {}}
                     />
@@ -410,7 +410,7 @@ class Edit extends Component {
                     <TextWidget
                       id="external"
                       title={this.props.intl.formatMessage(
-                        messages.externalURL
+                        messages.externalURL,
                       )}
                       required={false}
                       value={data.url}
@@ -418,7 +418,7 @@ class Edit extends Component {
                       iconAction={(block) =>
                         this.props.onChangeBlock(block, {
                           ...data,
-                          url: "",
+                          url: '',
                         })
                       }
                       onChange={() => {}}
@@ -441,6 +441,6 @@ export default compose(
       request: state.content.create,
       content: state.content.data,
     }),
-    { createContent }
-  )
+    { createContent },
+  ),
 )(Edit);

@@ -1,9 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 
-import loadable from "@loadable/component";
+import loadable from '@loadable/component';
 
-const PDF = loadable(() => import("react-pdf-js"), {
+const PDF = loadable(() => import('react-pdf-js'), {
   fallback: () => <div>Loading PDF file...</div>,
 });
 
@@ -14,7 +14,7 @@ const PDF = loadable(() => import("react-pdf-js"), {
 const mgrpdfStyles = {};
 
 mgrpdfStyles.wrapper = {
-  textAlign: "center",
+  textAlign: 'center',
 };
 
 class PDFViewer extends React.Component {
@@ -42,7 +42,7 @@ class PDFViewer extends React.Component {
       {
         pages,
       },
-      () => this.props.onDocumentComplete(this.state)
+      () => this.props.onDocumentComplete(this.state),
     );
   };
 
@@ -97,7 +97,7 @@ class PDFViewer extends React.Component {
 
     return (
       <div
-        className={css ? css : "mgrpdf__wrapper"}
+        className={css ? css : 'mgrpdf__wrapper'}
         style={mgrpdfStyles.wrapper}
       >
         {pdf}

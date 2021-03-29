@@ -1,19 +1,19 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { Icon } from "@plone/volto/components";
-import config from "@plone/volto/registry";
-import { flattenToAppURL } from "@plone/volto/helpers";
-import loadable from "@loadable/component";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Icon } from '@plone/volto/components';
+import config from '@plone/volto/registry';
+import { flattenToAppURL } from '@plone/volto/helpers';
+import loadable from '@loadable/component';
 
-import CustomNavigation from "./PDFNavigation";
-import "./pdf-styling.css";
+import CustomNavigation from './PDFNavigation';
+import './pdf-styling.css';
 
-import zoomInSVG from "@plone/volto/icons/add.svg";
-import zoomOutSVG from "@plone/volto/icons/remove.svg";
-import downloadSVG from "@plone/volto/icons/move-down.svg";
-import { useCorsproxy } from "../helpers";
+import zoomInSVG from '@plone/volto/icons/add.svg';
+import zoomOutSVG from '@plone/volto/icons/remove.svg';
+import downloadSVG from '@plone/volto/icons/move-down.svg';
+import { Corsproxy } from '../../helpers';
 
-const LoadablePDFViewer = loadable(() => import("./PDFViewer"), {
+const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
   fallback: () => <div>Loading PDF file...</div>,
 });
 
@@ -37,16 +37,16 @@ class PDFView extends Component {
     }));
 
   componentDidMount() {
-    const pdfWrapper = document.querySelector(".pdf-wrapper");
+    const pdfWrapper = document.querySelector('.pdf-wrapper');
     if (pdfWrapper) {
-      pdfWrapper.addEventListener("wheel", this.handleWheel);
+      pdfWrapper.addEventListener('wheel', this.handleWheel);
     }
   }
 
   componentWillUnmount() {
-    const pdfWrapper = document.querySelector(".pdf-wrapper");
+    const pdfWrapper = document.querySelector('.pdf-wrapper');
     if (pdfWrapper) {
-      pdfWrapper.addEventListener("wheel", this.handleWheel);
+      pdfWrapper.addEventListener('wheel', this.handleWheel);
     }
   }
 
@@ -80,7 +80,7 @@ class PDFView extends Component {
       (data.url &&
         (data.url.includes(config.settings.apiPath)
           ? `${flattenToAppURL(data.url)}/@@download/file`
-          : useCorsproxy(data.url))) ||
+          : Corsproxy(data.url))) ||
       null;
 
     return (
@@ -104,7 +104,7 @@ class PDFView extends Component {
                 >
                   <Icon name={zoomOutSVG} size="15px" />
                 </button>
-                <p className="scale-ratio">{this.state.scale_ratio + "%"}</p>
+                <p className="scale-ratio">{this.state.scale_ratio + '%'}</p>
               </div>
               <div>
                 <a href={dataUrl}>
