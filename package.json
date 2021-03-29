@@ -1,11 +1,11 @@
 {
-  "name": "@eeacms/volto-addon-template",
-  "version": "0.1.0",
-  "description": "volto-addon-template: Volto add-on",
+  "name": "@eeacms/volto-pdf-block",
+  "version": "1.0.0",
+  "description": "volto-pdf-block: Pdf integration block",
   "main": "src/index.js",
   "author": "European Environment Agency: IDM2 A-Team",
   "license": "MIT",
-  "homepage": "https://github.com/eea/volto-addon-template",
+  "homepage": "https://github.com/eea/volto-pdf-block",
   "keywords": [
     "volto-addon",
     "volto",
@@ -14,9 +14,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:eea/volto-addon-template.git"
+    "url": "git@github.com:eea/volto-pdf-block.git"
   },
   "dependencies": {
+    "react-pdf-js": "^5.1.0"
   },
   "scripts": {
     "release": "release-it",
