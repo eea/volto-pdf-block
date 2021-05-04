@@ -7,7 +7,7 @@
 [Volto](https://github.com/plone/volto) add-on
 
 ## Features
-
+- Flexible PDF integration in Volto.
 ###
 
 Demo GIF
