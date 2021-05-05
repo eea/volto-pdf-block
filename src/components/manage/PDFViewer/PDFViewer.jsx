@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import loadable from '@loadable/component';
+//import loadable from '@loadable/component';
+import PDF from '@mikecousins/react-pdf';
 
-const PDF = loadable(() => import('react-pdf-js'), {
-  fallback: () => <div>Loading PDF file...</div>,
-});
+// const PDF = loadable(() => import('react-pdf-js'), {
+//   fallback: () => <div>Loading PDF file...</div>,
+// });
 
 // import Navigation from './Navigation';
 // Based on
