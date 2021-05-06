@@ -8,7 +8,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { readAsDataURL } from 'promise-file-reader';
-import { Button, Input, Message, Segment } from 'semantic-ui-react';
+import {
+  Button,
+  Input,
+  Message,
+  Segment,
+  Dimmer,
+  Loader,
+} from 'semantic-ui-react';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import loadable from '@loadable/component';
 
@@ -25,6 +32,7 @@ import pdfSVG from './pdf-icon.svg';
 import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
 import aheadSVG from '@plone/volto/icons/ahead.svg';
+import uploadSVG from '@plone/volto/icons/upload.svg';
 
 const Dropzone = loadable(() => import('react-dropzone'));
 const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
@@ -138,6 +146,7 @@ class Edit extends Component {
     ) {
       this.setState({
         uploading: false,
+        dragging: false,
       });
       this.props.onChangeBlock(this.props.block, {
         ...this.props.data,
@@ -160,9 +169,9 @@ class Edit extends Component {
     readAsDataURL(file).then((data) => {
       const fields = data.match(/^data:(.*);(.*),(.*)$/);
       this.props.createContent(getBaseUrl(this.props.pathname), {
-        '@type': 'Image',
+        '@type': 'File',
         title: file.name,
-        image: {
+        file: {
           data: fields[3],
           encoding: fields[2],
           'content-type': fields[1],
@@ -324,6 +333,12 @@ class Edit extends Component {
               {({ getRootProps, getInputProps }) => (
                 <div {...getRootProps()}>
                   <Message>
+                    {this.state.dragging && <Dimmer active></Dimmer>}
+                    {this.state.uploading && (
+                      <Dimmer active>
+                        <Loader indeterminate>Uploading image</Loader>
+                      </Dimmer>
+                    )}
                     <center>
                       <img src={pdfSVG} alt="" />
                       <div className="toolbar-inner">
@@ -339,25 +354,57 @@ class Edit extends Component {
                             <Icon name={navTreeSVG} size="24px" />
                           </Button>
                         </Button.Group>
+                        <Button.Group>
+                          <label className="ui button basic icon">
+                            <Icon name={uploadSVG} size="24px" />
+                            <input
+                              {...getInputProps({
+                                type: 'file',
+                                onChange: this.onUploadImage,
+                                style: { display: 'none' },
+                              })}
+                            />
+                          </label>
+                        </Button.Group>
                         <Input
-                          {...getInputProps({
-                            onKeyDown: this.onKeyDownVariantMenuForm,
-                            onChange: this.onChangeUrl,
-                            placeholder: this.props.intl.formatMessage(
-                              messages.ImageBlockInputPlaceholder,
-                            ),
-                            onClick: (e) => e.stopPropagation(),
-                          })}
+                          onKeyDown={this.onKeyDownVariantMenuForm}
+                          onChange={this.onChangeUrl}
+                          value={this.state.url}
+                          placeholder={this.props.intl.formatMessage(
+                            messages.ImageBlockInputPlaceholder,
+                          )}
+                          onClick={(e) => {
+                            e.target.focus();
+                          }}
+                          onFocus={(e) => {
+                            this.props.onSelectBlock(this.props.id);
+                          }}
+                          style={{ width: '100%' }}
                         />
                         {this.state.url && (
                           <Button.Group>
-                            <Button basic className="cancel">
+                            <Button
+                              basic
+                              className="cancel"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                this.setState({ url: '' });
+                              }}
+                            >
                               <Icon name={clearSVG} size="30px" />
                             </Button>
                           </Button.Group>
                         )}
                         <Button.Group>
-                          <Button basic primary>
+                          <Button
+                            basic
+                            primary
+                            disabled={!this.state.url}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              this.onSubmitUrl();
+                            }}
+                          >
                             <Icon name={aheadSVG} size="30px" />
                           </Button>
                         </Button.Group>
@@ -415,8 +462,8 @@ class Edit extends Component {
                       required={false}
                       value={data.url}
                       icon={clearSVG}
-                      iconAction={(block) =>
-                        this.props.onChangeBlock(block, {
+                      iconAction={() =>
+                        this.props.onChangeBlock(this.props.block, {
                           ...data,
                           url: '',
                         })
