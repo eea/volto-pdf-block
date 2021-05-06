@@ -15,6 +15,7 @@ import { Corsproxy } from '../../helpers';
 
 const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
   fallback: () => <div>Loading PDF file...</div>,
+  ssr: false,
 });
 
 class PDFView extends Component {
