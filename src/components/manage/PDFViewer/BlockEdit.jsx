@@ -27,6 +27,7 @@ import { flattenToAppURL, getBaseUrl } from '@plone/volto/helpers';
 
 import CustomNavigation from './PDFNavigation';
 import './pdf-styling.css';
+import { Corsproxy } from '../../helpers';
 
 import pdfSVG from './pdf-icon.svg';
 import clearSVG from '@plone/volto/icons/clear.svg';
@@ -95,14 +96,16 @@ class Edit extends Component {
   };
 
   componentDidMount() {
-    const pdfWrapper = document.querySelector('.pdf-wrapper');
-    if (pdfWrapper) {
-      pdfWrapper.addEventListener('wheel', this.handleWheel);
-    }
+    LoadablePDFViewer.load().then(() => {
+      const pdfWrapper = document.querySelector('.pdf-viewer');
+      if (pdfWrapper) {
+        pdfWrapper.addEventListener('wheel', this.handleWheel);
+      }
+    });
   }
 
   componentWillUnmount() {
-    const pdfWrapper = document.querySelector('.pdf-wrapper');
+    const pdfWrapper = document.querySelector('.pdf-viewer');
     if (pdfWrapper) {
       pdfWrapper.removeEventListener('wheel', this.handleWheel);
     }
@@ -271,7 +274,7 @@ class Edit extends Component {
       (this.props.data.url &&
         (this.props.data.url.includes(config.settings.apiPath)
           ? `${flattenToAppURL(this.props.data.url)}/@@download/file`
-          : this.props.data.url)) ||
+          : Corsproxy(this.props.data.url))) ||
       null;
     const data = {
       ...this.props.data,

@@ -38,10 +38,12 @@ class PDFView extends Component {
     }));
 
   componentDidMount() {
-    const pdfWrapper = document.querySelector('.pdf-wrapper');
-    if (pdfWrapper) {
-      pdfWrapper.addEventListener('wheel', this.handleWheel);
-    }
+    LoadablePDFViewer.load().then(() => {
+      const pdfWrapper = document.querySelector('.pdf-wrapper');
+      if (pdfWrapper) {
+        pdfWrapper.addEventListener('wheel', this.handleWheel);
+      }
+    });
   }
 
   componentWillUnmount() {
