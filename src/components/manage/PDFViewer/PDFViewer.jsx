@@ -41,7 +41,7 @@ class PDFViewer extends React.Component {
   onDocumentComplete = (pages) => {
     this.setState(
       {
-        pages,
+        pages: pages.numPages,
       },
       () => this.props.onDocumentComplete(this.state),
     );
@@ -80,7 +80,7 @@ class PDFViewer extends React.Component {
         loading={loader}
         page={page}
         scale={scale}
-        onDocumentComplete={this.onDocumentComplete}
+        onDocumentLoadSuccess={this.onDocumentComplete}
       />
     );
 
