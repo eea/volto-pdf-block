@@ -412,6 +412,12 @@ class Edit extends Component {
                           </Button>
                         </Button.Group>
                       </div>
+                      <div className="message-text">
+                        <FormattedMessage
+                          id="Please remove all @'s in pdf direct download url."
+                          defaultMessage="Please remove all @'s in pdf direct download url."
+                        />
+                      </div>
                     </center>
                   </Message>
                 </div>
