@@ -80,28 +80,25 @@ class PDFViewer extends React.Component {
       <div
         className="block pdf_viewer selected"
         tabindex="-1"
-        style={{ outline: 'none', height: "100%" }}
+        style={{ outline: 'none', height: '100%' }}
       >
-          <div tabindex="0">
-            <div className="ui message">
-              <div
-                className="ui active transition visible dimmer"
-                style={{ display: 'flex !important;' }}
-              ></div>
-              <div
-                className="ui active transition visible dimmer"
-                style={{ display: 'flex !important;' }}
-              >
-                <div className="content">
-                  <div className="ui indeterminate text loader">
-                  </div>
-                </div>
-              </div>
-              {canvas}
+        <div className="ui message">
+          <div
+            className="ui active transition visible dimmer"
+            style={{ display: 'flex !important;' }}
+          ></div>
+          <div
+            className="ui active transition visible dimmer"
+            style={{ display: 'flex !important;' }}
+          >
+            <div className="content">
+              <div className="ui indeterminate text loader"></div>
             </div>
           </div>
+          {canvas}
+        </div>
       </div>
-    )
+    );
 
     const pdf = (
       <PDF
@@ -126,7 +123,8 @@ class PDFViewer extends React.Component {
       </PDF>
     );
 
-    const nav = !hideNavbar && pages > 0 ? (
+    const nav =
+      !hideNavbar && pages > 0 ? (
         <NavigationElement
           page={page}
           pages={pages}
