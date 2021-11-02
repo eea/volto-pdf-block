@@ -80,6 +80,7 @@ class PDFViewer extends React.Component {
         loading={loader}
         page={page}
         scale={scale}
+        workerSrc={`//www.eea.europa.eu/pdfjs/pdf.worker.min.js`}
         onDocumentLoadSuccess={this.onDocumentComplete}
       />
     );
