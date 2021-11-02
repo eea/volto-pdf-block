@@ -1,7 +1,6 @@
 .pdf-viewer {
   position: relative;
   overflow: hidden;
-  padding-bottom: 25px;
   background-color: #e5e5e5;
 }
 
@@ -9,7 +8,9 @@
   border-right: 2px solid #e5e5e5;
   border-left: 2px solid #e5e5e5;
 }
-
+.pdf-wrapper {
+	margin-bottom: 50px;
+}
 .pdf-toolbar {
   display: flex;
   width: 100%;

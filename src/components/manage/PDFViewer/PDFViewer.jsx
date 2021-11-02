@@ -1,14 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-//import loadable from '@loadable/component';
+import config from '@plone/volto/registry';
 import PDF from '@mikecousins/react-pdf';
 
-// const PDF = loadable(() => import('react-pdf-js'), {
-//   fallback: () => <div>Loading PDF file...</div>,
-// });
-
-// import Navigation from './Navigation';
 // Based on
 // https://raw.githubusercontent.com/MGrin/mgr-pdf-viewer-react/master/src/index.js
 
@@ -24,6 +18,7 @@ class PDFViewer extends React.Component {
     this.state = {
       pages: 0,
       page: 1,
+      loading: true,
     };
   }
 
@@ -63,13 +58,50 @@ class PDFViewer extends React.Component {
     });
   };
 
+  onPageRenderSuccess = (PDFPageProxy) => {
+    this.setState({
+      loading: false,
+    });
+  };
+
+  onPageRenderFail = (PDFPageProxy) => {
+    this.setState({
+      loading: false,
+    });
+  };
+
   render() {
     const source = this.props.document;
     const { loader, scale, hideNavbar, navigation, css } = this.props;
-
     const { page, pages } = this.state;
-
     const NavigationElement = navigation;
+
+    const loaderComponent = (canvas) => (
+      <div
+        className="block pdf_viewer selected"
+        tabindex="-1"
+        style={{ outline: 'none', height: "100%" }}
+      >
+          <div tabindex="0">
+            <div className="ui message">
+              <div
+                className="ui active transition visible dimmer"
+                style={{ display: 'flex !important;' }}
+              ></div>
+              <div
+                className="ui active transition visible dimmer"
+                style={{ display: 'flex !important;' }}
+              >
+                <div className="content">
+                  <div className="ui indeterminate text loader">
+                  </div>
+                </div>
+              </div>
+              {canvas}
+            </div>
+          </div>
+      </div>
+    )
 
     const pdf = (
       <PDF
@@ -77,33 +109,38 @@ class PDFViewer extends React.Component {
         content={source.base64}
         binaryContent={source.binary}
         documentInitParameters={source.connection}
-        loading={loader}
+        loading={loader || this.state.loading}
         page={page}
         scale={scale}
-        workerSrc={`//www.eea.europa.eu/pdfjs/pdf.worker.min.js`}
+        onPageRenderSuccess={this.onPageRenderSuccess}
+        onPageRenderFail={this.onPageRenderFail}
+        workerSrc={config.settings.pdfWorkerSrc}
         onDocumentLoadSuccess={this.onDocumentComplete}
-      />
+      >
+        {({ pdfDocument, pdfPage, canvas }) => (
+          <>
+            {!pdfDocument && loaderComponent(canvas)}
+            {pdfDocument && canvas}
+          </>
+        )}
+      </PDF>
     );
 
-    let nav = null;
-    if (!hideNavbar && pages > 0) {
-      nav = (
+    const nav = !hideNavbar && pages > 0 ? (
         <NavigationElement
           page={page}
           pages={pages}
           handleNextClick={this.handleNextClick}
           handlePrevClick={this.handlePrevClick}
         />
-      );
-    }
+      ) : null;
 
     return (
       <div
-        className={css ? css : 'mgrpdf__wrapper'}
+        className={!this.state.loading && css ? css : 'mgrpdf__wrapper'}
         style={mgrpdfStyles.wrapper}
       >
         {pdf}
-
         {nav}
       </div>
     );
