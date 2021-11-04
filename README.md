@@ -48,7 +48,7 @@ Demo GIF
 1. Happy editing!
 
 ## Internal use of PDF library
-```
+```JS
 import config from '@plone/volto/registry';
 import PDF from '@mikecousins/react-pdf';
 
