@@ -85,7 +85,17 @@ Default is set by the library to:
 "//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js"
 ```
 
-For cases where it is needed to have the library on a different CDN this can be configured on `config.setting` similar to how we do on `volto-policy-ims`
+For cases where it is needed to have the library on a different CDN this can be configured on `config.settings.pdfWorkerSrc` similar to how we do on [volto-ims-policy](https://github.com/eea/volto-ims-policy/blob/master/src/index.js) which is an add-on that centrilazes configurations for Volto for different add-ons.
+
+
+```JS
+const applyConfig = (config) => {
+  ...
+  // PDF worker url
+  config.settings.pdfWorkerSrc = '//www.eea.europa.eu/pdfjs/pdf.worker.min.js';
+  return config;
+};
+```
 
 ## How to contribute
 
