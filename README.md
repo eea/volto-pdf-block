@@ -56,25 +56,25 @@ import PDF from '@mikecousins/react-pdf';
 export const PdfViwer = (props) => {
 
 return (
-	<PDF
-		file={source.file || source.url}
-		content={source.base64}
-		binaryContent={source.binary}
-		documentInitParameters={source.connection}
-		page={page}
-		scale={scale}
-		onPageRenderSuccess={onPageRenderSuccess}
-		onPageRenderFail={onPageRenderFail}
-		workerSrc={config.settings.pdfWorkerSrc}
-		onDocumentLoadSuccess={onDocumentComplete}
-	>
-		{({ pdfDocument, pdfPage, canvas }) => (
-			<>
-				{!pdfDocument && loaderComponent(canvas)}
-				{pdfDocument && canvas}
-			</>
-		)}
-	</PDF>
+  <PDF
+    file={source.file || source.url}
+    content={source.base64}
+    binaryContent={source.binary}
+    documentInitParameters={source.connection}
+    page={page}
+    scale={scale}
+    onPageRenderSuccess={onPageRenderSuccess}
+    onPageRenderFail={onPageRenderFail}
+    workerSrc={config.settings.pdfWorkerSrc}
+    onDocumentLoadSuccess={onDocumentComplete}
+  >
+    {({ pdfDocument, pdfPage, canvas }) => (
+    <>
+      {!pdfDocument && loaderComponent(canvas)}
+      {pdfDocument && canvas}
+    </>
+    )}
+  </PDF>
 )}
 ```
 
