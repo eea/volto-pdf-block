@@ -47,6 +47,46 @@ Demo GIF
 
 1. Happy editing!
 
+## Internal use of PDF library
+```
+import config from '@plone/volto/registry';
+import PDF from '@mikecousins/react-pdf';
+
+
+export const PdfViwer = (props) => {
+
+return (
+	<PDF
+		file={source.file || source.url}
+		content={source.base64}
+		binaryContent={source.binary}
+		documentInitParameters={source.connection}
+		page={page}
+		scale={scale}
+		onPageRenderSuccess={onPageRenderSuccess}
+		onPageRenderFail={onPageRenderFail}
+		workerSrc={config.settings.pdfWorkerSrc}
+		onDocumentLoadSuccess={onDocumentComplete}
+	>
+		{({ pdfDocument, pdfPage, canvas }) => (
+			<>
+				{!pdfDocument && loaderComponent(canvas)}
+				{pdfDocument && canvas}
+			</>
+		)}
+	</PDF>
+)}
+```
+
+## workerSrc
+Allows you to specify your own url for the pdf worker.
+Default is set by the library to:
+```
+"//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js"
+```
+
+For cases where it is needed to have the library on a different CDN this can be configured on `config.setting` similar to how we do on `volto-policy-ims`
+
 ## How to contribute
 
 See [DEVELOP.md](https://github.com/eea/volto-pdf-block/blob/master/DEVELOP.md).
