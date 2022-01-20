@@ -1,6 +1,6 @@
 {
   "name": "@eeacms/volto-pdf-block",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "volto-pdf-block: Pdf integration block",
   "main": "src/index.js",
   "author": "European Environment Agency: IDM2 A-Team",
