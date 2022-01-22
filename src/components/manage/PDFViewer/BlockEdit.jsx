@@ -165,7 +165,11 @@ class Edit extends Component {
    * @method onUploadImage
    * @returns {undefined}
    */
-  onUploadImage = ({ target }) => {
+  onUploadImage = (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const { target } = event;
     const file = target.files[0];
     this.setState({
       uploading: true,
