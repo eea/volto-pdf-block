@@ -20,7 +20,9 @@
 
 - Flexible PDF integration in Volto.
 
-Demo GIF
+NOTE: this addon assumes that, if you're trying to load external hosted PDF
+files, you will be using
+[@eeacms/volto-corsproxy](https://github.com/eea/volto-corsproxy)
 
 ## Getting started
 

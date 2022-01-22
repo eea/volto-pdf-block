@@ -26,14 +26,15 @@ import { createContent } from '@plone/volto/actions';
 import { flattenToAppURL, getBaseUrl } from '@plone/volto/helpers';
 
 import CustomNavigation from './PDFNavigation';
-import './pdf-styling.css';
-import { Corsproxy } from '../../helpers';
+import { urlToCorsProxy } from '../../helpers';
 
 import pdfSVG from './pdf-icon.svg';
 import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
 import aheadSVG from '@plone/volto/icons/ahead.svg';
 import uploadSVG from '@plone/volto/icons/upload.svg';
+
+import './pdf-styling.css';
 
 const Dropzone = loadable(() => import('react-dropzone'));
 const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
@@ -274,10 +275,16 @@ class Edit extends Component {
       (this.props.data.url &&
         (this.props.data.url.includes(config.settings.apiPath)
           ? `${flattenToAppURL(this.props.data.url)}/@@download/file`
-          : Corsproxy(this.props.data.url))) ||
+          : urlToCorsProxy(this.props.data.url))) ||
       null;
     const data = {
       ...this.props.data,
+    };
+    const onSelectItem = (url) => {
+      this.props.onChangeBlock(this.props.block, {
+        ...this.props.data,
+        url,
+      });
     };
     return (
       <div>
@@ -351,7 +358,10 @@ class Edit extends Component {
                             icon
                             onClick={(e) => {
                               e.stopPropagation();
-                              this.props.openObjectBrowser();
+                              this.props.openObjectBrowser({
+                                mode: 'link',
+                                onSelectItem,
+                              });
                             }}
                           >
                             <Icon name={navTreeSVG} size="24px" />
@@ -457,7 +467,10 @@ class Edit extends Component {
                       value={data.url.split('/').slice(-1)[0]}
                       icon={navTreeSVG}
                       iconAction={() =>
-                        this.props.openObjectBrowser({ mode: 'link' })
+                        this.props.openObjectBrowser({
+                          mode: 'link',
+                          onSelectItem,
+                        })
                       }
                       onChange={() => {}}
                     />
