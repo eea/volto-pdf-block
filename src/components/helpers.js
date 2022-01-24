@@ -1,7 +1,7 @@
 import config from '@plone/volto/registry';
 const url = require('url');
 
-export function Corsproxy(targetUrl) {
+export function urlToCorsProxy(targetUrl) {
   const allowed_cors_destinations =
     config.settings.allowed_cors_destinations || [];
   const parsed = url.parse(targetUrl);
