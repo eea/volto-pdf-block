@@ -22,7 +22,7 @@ import loadable from '@loadable/component';
 import config from '@plone/volto/registry';
 
 import { Icon, SidebarPortal, TextWidget } from '@plone/volto/components';
-import { createContent, unlockContent } from '@plone/volto/actions';
+import { createContent } from '@plone/volto/actions';
 import { flattenToAppURL, getBaseUrl } from '@plone/volto/helpers';
 
 import CustomNavigation from './PDFNavigation';
@@ -519,6 +519,6 @@ export default compose(
       request: state.content.subrequests[props.block] || {},
       content: state.content.subrequests[props.block]?.data,
     }),
-    { createContent, unlockContent },
+    { createContent },
   ),
 )(Edit);
