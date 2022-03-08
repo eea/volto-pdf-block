@@ -22,7 +22,7 @@ import loadable from '@loadable/component';
 import config from '@plone/volto/registry';
 
 import { Icon, SidebarPortal, TextWidget } from '@plone/volto/components';
-import { createContent } from '@plone/volto/actions';
+import { createContent, unlockContent } from '@plone/volto/actions';
 import { flattenToAppURL, getBaseUrl } from '@plone/volto/helpers';
 
 import CustomNavigation from './PDFNavigation';
@@ -152,9 +152,10 @@ class Edit extends Component {
         uploading: false,
         dragging: false,
       });
+      const id = nextProps.content['@id'];
       this.props.onChangeBlock(this.props.block, {
         ...this.props.data,
-        url: nextProps.content['@id'],
+        url: id,
       });
     }
   }
@@ -176,16 +177,20 @@ class Edit extends Component {
     });
     readAsDataURL(file).then((data) => {
       const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props.createContent(getBaseUrl(this.props.pathname), {
-        '@type': 'File',
-        title: file.name,
-        file: {
-          data: fields[3],
-          encoding: fields[2],
-          'content-type': fields[1],
-          filename: file.name,
+      this.props.createContent(
+        getBaseUrl(this.props.pathname),
+        {
+          '@type': 'File',
+          title: file.name,
+          file: {
+            data: fields[3],
+            encoding: fields[2],
+            'content-type': fields[1],
+            filename: file.name,
+          },
         },
-      });
+        this.props.block,
+      );
     });
   };
 
@@ -510,10 +515,10 @@ class Edit extends Component {
 export default compose(
   injectIntl,
   connect(
-    (state) => ({
-      request: state.content.create,
-      content: state.content.data,
+    (state, props) => ({
+      request: state.content.subrequests[props.block] || {},
+      content: state.content.subrequests[props.block]?.data,
     }),
-    { createContent },
+    { createContent, unlockContent },
   ),
 )(Edit);
