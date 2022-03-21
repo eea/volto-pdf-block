@@ -7,15 +7,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { readAsDataURL } from 'promise-file-reader';
-import {
-  Button,
-  Input,
-  Message,
-  Segment,
-  Dimmer,
-  Loader,
-} from 'semantic-ui-react';
+import { Button, Segment } from 'semantic-ui-react';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import loadable from '@loadable/component';
 
@@ -23,20 +15,18 @@ import config from '@plone/volto/registry';
 
 import { Icon, SidebarPortal, TextWidget } from '@plone/volto/components';
 import { createContent } from '@plone/volto/actions';
-import { flattenToAppURL, getBaseUrl } from '@plone/volto/helpers';
+import { flattenToAppURL } from '@plone/volto/helpers';
 
+import UploadWidget from './UploadWidget';
 import CustomNavigation from './PDFNavigation';
 import { urlToCorsProxy } from '../../helpers';
 
 import pdfSVG from './pdf-icon.svg';
 import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
-import aheadSVG from '@plone/volto/icons/ahead.svg';
-import uploadSVG from '@plone/volto/icons/upload.svg';
 
 import './pdf-styling.css';
 
-const Dropzone = loadable(() => import('react-dropzone'));
 const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
   fallback: () => <div>Loading PDF file...</div>,
 });
@@ -89,11 +79,9 @@ class Edit extends Component {
   };
 
   state = {
-    uploading: false,
     url: '',
     currentPage: 1,
     pageCount: 0,
-    dragging: false,
   };
 
   componentDidMount() {
@@ -136,63 +124,16 @@ class Edit extends Component {
     });
   };
 
-  /**
-   * Component will receive props
-   * @method componentWillReceiveProps
-   * @param {Object} nextProps Next properties
-   * @returns {undefined}
-   */
-  componentWillReceiveProps(nextProps) {
-    if (
-      this.props.request.loading &&
-      nextProps.request.loaded &&
-      this.state.uploading
-    ) {
-      this.setState({
-        uploading: false,
-        dragging: false,
-      });
-      const id = nextProps.content['@id'];
+  componentDidUpdate(prevProps) {
+    if (prevProps.request.loading && this.props.request.loaded) {
+      const id = this.props.content['@id'];
+
       this.props.onChangeBlock(this.props.block, {
         ...this.props.data,
         url: id,
       });
     }
   }
-
-  /**
-   * Upload image handler (not used), but useful in case that we want a button
-   * not powered by react-dropzone
-   * @method onUploadImage
-   * @returns {undefined}
-   */
-  onUploadImage = (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-
-    const { target } = event;
-    const file = target.files[0];
-    this.setState({
-      uploading: true,
-    });
-    readAsDataURL(file).then((data) => {
-      const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props.createContent(
-        getBaseUrl(this.props.pathname),
-        {
-          '@type': 'File',
-          title: file.name,
-          file: {
-            data: fields[3],
-            encoding: fields[2],
-            'content-type': fields[1],
-            filename: file.name,
-          },
-        },
-        this.props.block,
-      );
-    });
-  };
 
   /**
    * Change url handler
@@ -206,72 +147,6 @@ class Edit extends Component {
     });
   };
 
-  /**
-   * Submit url handler
-   * @method onSubmitUrl
-   * @param {object} e Event
-   * @returns {undefined}
-   */
-  onSubmitUrl = () => {
-    this.props.onChangeBlock(this.props.block, {
-      ...this.props.data,
-      url: this.state.url,
-    });
-  };
-
-  /**
-   * Drop handler
-   * @method onDrop
-   * @param {array} files File objects
-   * @returns {undefined}
-   */
-  onDrop = (file) => {
-    this.setState({
-      uploading: true,
-    });
-
-    readAsDataURL(file[0]).then((data) => {
-      const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props.createContent(getBaseUrl(this.props.pathname), {
-        '@type': 'File',
-        title: file[0].name,
-        file: {
-          data: fields[3],
-          encoding: fields[2],
-          'content-type': fields[1],
-          filename: file[0].name,
-        },
-      });
-    });
-  };
-
-  /**
-   * Keydown handler on Variant Menu Form
-   * This is required since the ENTER key is already mapped to a onKeyDown
-   * event and needs to be overriden with a child onKeyDown.
-   * @method onKeyDownVariantMenuForm
-   * @param {Object} e Event object
-   * @returns {undefined}
-   */
-  onKeyDownVariantMenuForm = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation();
-      this.onSubmitUrl();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      e.stopPropagation();
-      // TODO: Do something on ESC key
-    }
-  };
-
-  onDragEnter = () => {
-    this.setState({ dragging: true });
-  };
-  onDragLeave = () => {
-    this.setState({ dragging: false });
-  };
-
   node = React.createRef();
 
   /**
@@ -280,21 +155,21 @@ class Edit extends Component {
    * @returns {string} Markup for the component.
    */
   render() {
+    const { onSelectBlock, data = {} } = this.props;
     const dataUrl =
-      (this.props.data.url &&
-        (this.props.data.url.includes(config.settings.apiPath)
-          ? `${flattenToAppURL(this.props.data.url)}/@@download/file`
-          : urlToCorsProxy(this.props.data.url))) ||
+      (data.url &&
+        (data.url.includes(config.settings.apiPath) || data.url.startsWith('/')
+          ? `${flattenToAppURL(data.url)}/@@download/file`
+          : urlToCorsProxy(data.url))) ||
       null;
-    const data = {
-      ...this.props.data,
-    };
+
     const onSelectItem = (url) => {
       this.props.onChangeBlock(this.props.block, {
         ...this.props.data,
         url,
       });
     };
+
     return (
       <div>
         {this.props.selected && !!this.props.data.url && (
@@ -323,13 +198,12 @@ class Edit extends Component {
           </div>
         )}
         {this.props.selected &&
-          !this.props.data.url &&
+          !data.url &&
           this.props.appendSecondaryActions && (
             <div className="toolbar">{this.props.appendSecondaryActions}</div>
           )}
-        {this.props.data.url ? (
+        {data.url ? (
           <div>
-            <div className="pdf-toolbar pdf-toolbar-top" />
             <LoadablePDFViewer
               document={{
                 url: dataUrl,
@@ -341,109 +215,18 @@ class Edit extends Component {
             />
           </div>
         ) : (
-          <div>
-            <Dropzone
-              noClick
-              onDrop={this.onDrop}
-              onDragEnter={this.onDragEnter}
-              onDragLeave={this.onDragLeave}
-              className="dropzone"
-            >
-              {({ getRootProps, getInputProps }) => (
-                <div {...getRootProps()}>
-                  <Message>
-                    {this.state.dragging && <Dimmer active></Dimmer>}
-                    {this.state.uploading && (
-                      <Dimmer active>
-                        <Loader indeterminate>Uploading image</Loader>
-                      </Dimmer>
-                    )}
-                    <center>
-                      <img src={pdfSVG} alt="" />
-                      <div className="toolbar-inner">
-                        <Button.Group>
-                          <Button
-                            basic
-                            icon
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              this.props.openObjectBrowser({
-                                mode: 'link',
-                                onSelectItem,
-                              });
-                            }}
-                          >
-                            <Icon name={navTreeSVG} size="24px" />
-                          </Button>
-                        </Button.Group>
-                        <Button.Group>
-                          <label className="ui button basic icon">
-                            <Icon name={uploadSVG} size="24px" />
-                            <input
-                              {...getInputProps({
-                                type: 'file',
-                                onChange: this.onUploadImage,
-                                style: { display: 'none' },
-                              })}
-                            />
-                          </label>
-                        </Button.Group>
-                        <Input
-                          onKeyDown={this.onKeyDownVariantMenuForm}
-                          onChange={this.onChangeUrl}
-                          value={this.state.url}
-                          placeholder={this.props.intl.formatMessage(
-                            messages.ImageBlockInputPlaceholder,
-                          )}
-                          onClick={(e) => {
-                            e.target.focus();
-                          }}
-                          onFocus={(e) => {
-                            this.props.onSelectBlock(this.props.id);
-                          }}
-                          style={{ width: '100%' }}
-                        />
-                        {this.state.url && (
-                          <Button.Group>
-                            <Button
-                              basic
-                              className="cancel"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                this.setState({ url: '' });
-                              }}
-                            >
-                              <Icon name={clearSVG} size="30px" />
-                            </Button>
-                          </Button.Group>
-                        )}
-                        <Button.Group>
-                          <Button
-                            basic
-                            primary
-                            disabled={!this.state.url}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              this.onSubmitUrl();
-                            }}
-                          >
-                            <Icon name={aheadSVG} size="30px" />
-                          </Button>
-                        </Button.Group>
-                      </div>
-                      <div className="message-text">
-                        <FormattedMessage
-                          id="Please remove all @'s in pdf direct download url."
-                          defaultMessage="Please remove all @'s in pdf direct download url."
-                        />
-                      </div>
-                    </center>
-                  </Message>
-                </div>
-              )}
-            </Dropzone>
-          </div>
+          <UploadWidget
+            block={this.props.block}
+            id={`upload-widget-${this.props.block}`}
+            value={data?.url}
+            onChange={(id, value) => onSelectItem(value)}
+            onFocus={() => onSelectBlock(this.props.block)}
+            icon={pdfSVG}
+            pathname={this.props.pathname}
+            openObjectBrowser={this.props.openObjectBrowser}
+          />
         )}
+
         <SidebarPortal selected={this.props.selected}>
           <Segment.Group raised>
             <header className="header pulled">

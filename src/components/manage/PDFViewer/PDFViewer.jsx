@@ -3,6 +3,11 @@ import PropTypes from 'prop-types';
 import config from '@plone/volto/registry';
 import PDF from '@mikecousins/react-pdf';
 
+import { Icon } from '@plone/volto/components';
+import zoomInSVG from '@plone/volto/icons/add.svg';
+import zoomOutSVG from '@plone/volto/icons/remove.svg';
+import downloadSVG from '@plone/volto/icons/move-down.svg';
+
 // Based on
 // https://raw.githubusercontent.com/MGrin/mgr-pdf-viewer-react/master/src/index.js
 
@@ -12,137 +17,171 @@ mgrpdfStyles.wrapper = {
   textAlign: 'center',
 };
 
-class PDFViewer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      pages: 0,
-      page: 1,
-      loading: true,
-    };
-  }
-
-  componentDidMount() {
-    this.setState({
-      pages: null,
-      page: this.props.page || 1,
-    });
-  }
-
-  componentWillReceiveProps({ page }) {
-    this.setState({ page: page || this.state.page });
-  }
-
-  onDocumentComplete = (pages) => {
-    this.setState(
-      {
-        pages: pages.numPages,
-      },
-      () => this.props.onDocumentComplete(this.state),
-    );
-  };
-
-  handlePrevClick = () => {
-    if (this.state.page === 1) return;
-
-    this.setState({
-      page: this.state.page - 1,
-    });
-  };
-
-  handleNextClick = () => {
-    if (this.state.page === this.state.pages) return;
-
-    this.setState({
-      page: this.state.page + 1,
-    });
-  };
-
-  onPageRenderSuccess = (PDFPageProxy) => {
-    this.setState({
-      loading: false,
-    });
-  };
-
-  onPageRenderFail = (PDFPageProxy) => {
-    this.setState({
-      loading: false,
-    });
-  };
-
-  render() {
-    const source = this.props.document;
-    const { loader, scale, hideNavbar, navigation, css } = this.props;
-    const { page, pages } = this.state;
-    const NavigationElement = navigation;
-
-    const loaderComponent = (canvas) => (
+const LoaderComponent = ({ canvas }) => (
+  <div
+    className="block pdf_viewer selected"
+    tabindex="-1"
+    style={{ outline: 'none', height: '100%' }}
+  >
+    <div className="ui message">
       <div
-        className="block pdf_viewer selected"
-        tabindex="-1"
-        style={{ outline: 'none', height: '100%' }}
+        className="ui active transition visible dimmer"
+        style={{ display: 'flex !important;' }}
+      ></div>
+      <div
+        className="ui active transition visible dimmer"
+        style={{ display: 'flex !important;' }}
       >
-        <div className="ui message">
-          <div
-            className="ui active transition visible dimmer"
-            style={{ display: 'flex !important;' }}
-          ></div>
-          <div
-            className="ui active transition visible dimmer"
-            style={{ display: 'flex !important;' }}
-          >
-            <div className="content">
-              <div className="ui indeterminate text loader"></div>
-            </div>
-          </div>
-          {canvas}
+        <div className="content">
+          <div className="ui indeterminate text loader"></div>
         </div>
       </div>
-    );
+      {canvas}
+    </div>
+  </div>
+);
 
-    const pdf = (
+const PDFToolbar = ({ downloadUrl, onScaleUp, onScaleDown, scale_ratio }) => (
+  <div className="pdf-toolbar pdf-toolbar-top">
+    <div>
+      <button className="pdf-toolbar-btn" title="Zoom In" onClick={onScaleUp}>
+        <Icon name={zoomInSVG} size="15px" />
+      </button>
+      <div className="scale-separator" />
+      <button
+        className="pdf-toolbar-btn"
+        title="Zoom Out"
+        onClick={onScaleDown}
+      >
+        <Icon name={zoomOutSVG} size="15px" />
+      </button>
+      <p className="scale-ratio">{scale_ratio + '%'}</p>
+    </div>
+    <div>
+      <a href={downloadUrl}>
+        <button className="pdf-toolbar-btn" title="Download">
+          <Icon name={downloadSVG} size="15px" />
+        </button>
+      </a>
+    </div>
+  </div>
+);
+
+function PDFViewer({
+  page = 1,
+  initialScale = 1.0,
+  initial_scale_ratio = 100,
+  loader,
+  hideNavbar,
+  navigation: NavigationElement,
+  css,
+  document: source,
+}) {
+  console.log('document', source);
+
+  const [scale, setScale] = React.useState(initialScale);
+  const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
+  const [totalPages, setTotalPages] = React.useState(0);
+  const [currentPage, setCurrentPage] = React.useState(page);
+
+  const [loading, setLoading] = React.useState(true);
+  const [loaded, setLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    setCurrentPage(page || 1);
+  }, [page]);
+
+  const increaseScale = () => {
+    setScale(scale + 0.1);
+    setScale_ratio(scale_ratio + 10);
+  };
+  const decreaseScale = () => {
+    setScale(scale - 0.1);
+    setScale_ratio(scale_ratio - 10);
+  };
+
+  const handlePrevClick = () => {
+    if (currentPage === 1) return;
+    setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextClick = () => {
+    if (currentPage === totalPages) return;
+    setCurrentPage(currentPage + 1);
+  };
+
+  React.useLayoutEffect(() => {
+    function handleWheel(event) {
+      if (event.deltaY < 0) {
+        setCurrentPage(Math.max(currentPage - 1, 1));
+      } else if (event.deltaY > 0) {
+        setCurrentPage(Math.min(currentPage + 1, totalPages));
+      }
+
+      event.preventDefault();
+    }
+
+    const pdfWrapper = document.querySelector('.pdf-wrapper');
+    if (pdfWrapper) {
+      pdfWrapper.addEventListener('wheel', handleWheel);
+    }
+    return () => {
+      const pdfWrapper = document.querySelector('.pdf-wrapper');
+      if (pdfWrapper) {
+        pdfWrapper.addEventListener('wheel', handleWheel);
+      }
+    };
+  }, [currentPage, totalPages]);
+
+  return (
+    <div
+      className={!loading && css ? css : 'mgrpdf__wrapper'}
+      style={mgrpdfStyles.wrapper}
+    >
+      <PDFToolbar
+        onScaleUp={increaseScale}
+        onScaleDown={decreaseScale}
+        downloadUrl={source.url}
+        scale_ratio={scale_ratio}
+      />
       <PDF
         file={source.file || source.url}
         content={source.base64}
         binaryContent={source.binary}
         documentInitParameters={source.connection}
-        loading={loader || this.state.loading}
+        loading={loader || loading}
         page={page}
         scale={scale}
-        onPageRenderSuccess={this.onPageRenderSuccess}
-        onPageRenderFail={this.onPageRenderFail}
+        onPageRenderSuccess={() => {
+          setLoading(false);
+          setLoaded(true);
+        }}
+        onPageRenderFail={() => {
+          setLoading(false);
+          setLoaded(false);
+        }}
         workerSrc={config.settings.pdfWorkerSrc}
-        onDocumentLoadSuccess={this.onDocumentComplete}
+        onDocumentLoadSuccess={(pages) => {
+          setLoaded(true);
+          setTotalPages(pages);
+        }}
       >
-        {({ pdfDocument, pdfPage, canvas }) => (
-          <>
-            {!pdfDocument && loaderComponent(canvas)}
-            {pdfDocument && canvas}
-          </>
-        )}
+        {({ pdfDocument, pdfPage, canvas }) => {
+          console.log('pdf', pdfDocument, pdfPage, canvas, source);
+          return loaded ? canvas : <LoaderComponent canvas={canvas} />;
+        }}
       </PDF>
-    );
 
-    const nav =
-      !hideNavbar && pages > 0 ? (
+      {!hideNavbar && totalPages > 0 ? (
         <NavigationElement
-          page={page}
-          pages={pages}
-          handleNextClick={this.handleNextClick}
-          handlePrevClick={this.handlePrevClick}
+          page={currentPage}
+          pages={totalPages}
+          handleNextClick={handleNextClick}
+          handlePrevClick={handlePrevClick}
         />
-      ) : null;
-
-    return (
-      <div
-        className={!this.state.loading && css ? css : 'mgrpdf__wrapper'}
-        style={mgrpdfStyles.wrapper}
-      >
-        {pdf}
-        {nav}
-      </div>
-    );
-  }
+      ) : null}
+    </div>
+  );
 }
 
 PDFViewer.propTypes = {
