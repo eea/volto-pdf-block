@@ -7,29 +7,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { Button, Segment } from 'semantic-ui-react';
+import { Segment } from 'semantic-ui-react';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
-import loadable from '@loadable/component';
 
 import config from '@plone/volto/registry';
 
-import { Icon, SidebarPortal, TextWidget } from '@plone/volto/components';
+import {
+  BlockDataForm,
+  SidebarPortal,
+  TextWidget,
+} from '@plone/volto/components';
 import { createContent } from '@plone/volto/actions';
-import { flattenToAppURL } from '@plone/volto/helpers';
 
 import UploadWidget, { usePrevious } from './UploadWidget';
-import CustomNavigation from './PDFNavigation';
-import { urlToCorsProxy } from '../../helpers';
+import PDFBlockSchema from './schema';
+import PDFBlockView from './BlockView';
 
 import pdfSVG from './pdf-icon.svg';
 import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
-
-import './pdf-styling.css';
-
-const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
-  fallback: () => <div>Loading PDF file...</div>,
-});
 
 const messages = defineMessages({
   ImageBlockInputPlaceholder: {
@@ -53,9 +49,6 @@ function Edit(props) {
     onChangeBlock,
     block,
     selected,
-    appendActions = null,
-    appendSecondaryActions = null,
-    detached,
     pathname,
     openObjectBrowser,
     intl,
@@ -63,6 +56,7 @@ function Edit(props) {
     content,
   } = props;
 
+  const schema = React.useMemo(() => PDFBlockSchema(), []);
   const prevRequest = usePrevious(request) || {};
   const id = content['@id'];
 
@@ -74,13 +68,6 @@ function Edit(props) {
       });
     }
   }, [prevRequest.loading, request.loaded, id, block, data, onChangeBlock]);
-
-  const dataUrl =
-    (data.url &&
-      (data.url.includes(config.settings.apiPath) || data.url.startsWith('/')
-        ? `${flattenToAppURL(data.url)}/@@download/file`
-        : urlToCorsProxy(data.url))) ||
-    null;
 
   const onSelectItem = React.useCallback(
     (url) => {
@@ -94,41 +81,8 @@ function Edit(props) {
 
   return (
     <div>
-      {selected && !!data.url && (
-        <div className="toolbar">
-          {appendActions}
-          {detached && appendActions && <div className="separator" />}
-          <Button.Group>
-            <Button
-              icon
-              basic
-              onClick={() =>
-                onChangeBlock(block, {
-                  ...data,
-                  url: '',
-                })
-              }
-            >
-              <Icon name={clearSVG} size="24px" color="#e40166" />
-            </Button>
-          </Button.Group>
-          {appendSecondaryActions}
-        </div>
-      )}
-      {selected && !data.url && appendSecondaryActions && (
-        <div className="toolbar">{appendSecondaryActions}</div>
-      )}
       {data.url ? (
-        <div>
-          <LoadablePDFViewer
-            document={{
-              url: dataUrl,
-            }}
-            css="pdf-viewer"
-            navigation={CustomNavigation}
-            initial_page={1}
-          />
-        </div>
+        <PDFBlockView {...props} />
       ) : (
         <UploadWidget
           block={block}
@@ -144,9 +98,17 @@ function Edit(props) {
 
       <SidebarPortal selected={selected}>
         <Segment.Group raised>
-          <header className="header pulled">
-            <h2> PDF Block </h2>
-          </header>
+          <BlockDataForm
+            title="Quote"
+            schema={schema}
+            onChangeField={(id, value) => {
+              onChangeBlock(block, {
+                ...data,
+                [id]: value,
+              });
+            }}
+            formData={data}
+          />
 
           {!data.url && (
             <>
