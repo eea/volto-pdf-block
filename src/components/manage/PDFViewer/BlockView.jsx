@@ -34,7 +34,7 @@ const PDFBlockView = ({ data }) => {
             }}
             css="pdf-viewer"
             navigation={CustomNavigation}
-            showToolbar={data.show_toolbar ?? true}
+            showToolbar={!data.hideToolbar}
             initial_page={data.initial_page}
             initial_scale={data.initial_scale}
             initial_scale_ratio={data.initial_scale_ratio}

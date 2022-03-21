@@ -1,7 +1,12 @@
 const PDFBlockSchema = () => ({
   title: 'PDF Block',
-  properties: {},
-  fieldsets: [{ id: 'default', title: 'Default', fields: [] }],
+  properties: {
+    hideToolbar: {
+      type: 'boolean',
+      title: 'Hide toolbar',
+    },
+  },
+  fieldsets: [{ id: 'default', title: 'Default', fields: ['hideToolbar'] }],
   required: [],
 });
 

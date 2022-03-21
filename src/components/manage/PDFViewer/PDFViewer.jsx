@@ -78,6 +78,7 @@ function PDFViewer({
   navigation: NavigationElement,
   css,
   document: source,
+  showToolbar = true,
 }) {
   const [scale, setScale] = React.useState(initialScale);
   const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
@@ -138,12 +139,14 @@ function PDFViewer({
       className={!loading && css ? css : 'mgrpdf__wrapper'}
       style={mgrpdfStyles.wrapper}
     >
-      <PDFToolbar
-        onScaleUp={increaseScale}
-        onScaleDown={decreaseScale}
-        downloadUrl={source.url}
-        scale_ratio={scale_ratio}
-      />
+      {showToolbar && (
+        <PDFToolbar
+          onScaleUp={increaseScale}
+          onScaleDown={decreaseScale}
+          downloadUrl={source.url}
+          scale_ratio={scale_ratio}
+        />
+      )}
       <PDF
         file={source.file || source.url}
         content={source.base64}
