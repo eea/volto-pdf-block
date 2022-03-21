@@ -3,7 +3,7 @@
  * @module components/manage/PDFViewer/BlockEdit
  */
 
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -17,7 +17,7 @@ import { Icon, SidebarPortal, TextWidget } from '@plone/volto/components';
 import { createContent } from '@plone/volto/actions';
 import { flattenToAppURL } from '@plone/volto/helpers';
 
-import UploadWidget from './UploadWidget';
+import UploadWidget, { usePrevious } from './UploadWidget';
 import CustomNavigation from './PDFNavigation';
 import { urlToCorsProxy } from '../../helpers';
 
@@ -46,201 +46,194 @@ const messages = defineMessages({
   },
 });
 
-/**
- * Edit image block class.
- * @class Edit
- * @extends Component
- */
-class Edit extends Component {
-  /**
-   * Property types.
-   * @property {Object} propTypes Property types.
-   * @static
-   */
-  static propTypes = {
-    selected: PropTypes.bool.isRequired,
-    block: PropTypes.string.isRequired,
-    index: PropTypes.number.isRequired,
-    data: PropTypes.objectOf(PropTypes.any).isRequired,
-    content: PropTypes.objectOf(PropTypes.any).isRequired,
-    request: PropTypes.shape({
-      loading: PropTypes.bool,
-      loaded: PropTypes.bool,
-    }).isRequired,
-    pathname: PropTypes.string.isRequired,
-    onChangeBlock: PropTypes.func.isRequired,
-    onSelectBlock: PropTypes.func.isRequired,
-    onDeleteBlock: PropTypes.func.isRequired,
-    onFocusPreviousBlock: PropTypes.func.isRequired,
-    onFocusNextBlock: PropTypes.func.isRequired,
-    handleKeyDown: PropTypes.func.isRequired,
-    createContent: PropTypes.func.isRequired,
-    openObjectBrowser: PropTypes.func.isRequired,
-  };
+function Edit(props) {
+  const {
+    onSelectBlock,
+    data = {},
+    onChangeBlock,
+    block,
+    selected,
+    appendActions = null,
+    appendSecondaryActions = null,
+    detached,
+    pathname,
+    openObjectBrowser,
+    intl,
+    request,
+    content,
+  } = props;
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.request.loading && this.props.request.loaded) {
-      const id = this.props.content['@id'];
+  const prevRequest = usePrevious(request) || {};
+  const id = content['@id'];
 
-      this.props.onChangeBlock(this.props.block, {
-        ...this.props.data,
+  React.useEffect(() => {
+    if (prevRequest.loading && request.loaded) {
+      onChangeBlock(block, {
+        ...data,
         url: id,
       });
     }
-  }
+  }, [prevRequest.loading, request.loaded, id, block, data, onChangeBlock]);
 
-  /**
-   * Render method.
-   * @method render
-   * @returns {string} Markup for the component.
-   */
-  render() {
-    const { onSelectBlock, data = {} } = this.props;
-    const dataUrl =
-      (data.url &&
-        (data.url.includes(config.settings.apiPath) || data.url.startsWith('/')
-          ? `${flattenToAppURL(data.url)}/@@download/file`
-          : urlToCorsProxy(data.url))) ||
-      null;
+  const dataUrl =
+    (data.url &&
+      (data.url.includes(config.settings.apiPath) || data.url.startsWith('/')
+        ? `${flattenToAppURL(data.url)}/@@download/file`
+        : urlToCorsProxy(data.url))) ||
+    null;
 
-    const onSelectItem = (url) => {
-      this.props.onChangeBlock(this.props.block, {
-        ...this.props.data,
+  const onSelectItem = React.useCallback(
+    (url) => {
+      onChangeBlock(block, {
+        ...data,
         url,
       });
-    };
+    },
+    [block, data, onChangeBlock],
+  );
 
-    return (
-      <div>
-        {this.props.selected && !!this.props.data.url && (
-          <div className="toolbar">
-            {this.props.appendActions && <>{this.props.appendActions}</>}
-            {this.props.detached && this.props.appendActions && (
-              <div className="separator" />
-            )}
-            <Button.Group>
-              <Button
-                icon
-                basic
-                onClick={() =>
-                  this.props.onChangeBlock(this.props.block, {
-                    ...this.props.data,
-                    url: '',
-                  })
-                }
-              >
-                <Icon name={clearSVG} size="24px" color="#e40166" />
-              </Button>
-            </Button.Group>
-            {this.props.appendSecondaryActions && (
-              <>{this.props.appendSecondaryActions}</>
-            )}
-          </div>
-        )}
-        {this.props.selected &&
-          !data.url &&
-          this.props.appendSecondaryActions && (
-            <div className="toolbar">{this.props.appendSecondaryActions}</div>
-          )}
-        {data.url ? (
-          <div>
-            <LoadablePDFViewer
-              document={{
-                url: dataUrl,
-              }}
-              css="pdf-viewer"
-              navigation={CustomNavigation}
-              initial_page={1}
-              onDocumentComplete={this.onDocumentComplete}
-            />
-          </div>
-        ) : (
-          <UploadWidget
-            block={this.props.block}
-            id={`upload-widget-${this.props.block}`}
-            value={data?.url}
-            onChange={(id, value) => onSelectItem(value)}
-            onFocus={() => onSelectBlock(this.props.block)}
-            icon={pdfSVG}
-            pathname={this.props.pathname}
-            openObjectBrowser={this.props.openObjectBrowser}
+  return (
+    <div>
+      {selected && !!data.url && (
+        <div className="toolbar">
+          {appendActions}
+          {detached && appendActions && <div className="separator" />}
+          <Button.Group>
+            <Button
+              icon
+              basic
+              onClick={() =>
+                onChangeBlock(block, {
+                  ...data,
+                  url: '',
+                })
+              }
+            >
+              <Icon name={clearSVG} size="24px" color="#e40166" />
+            </Button>
+          </Button.Group>
+          {appendSecondaryActions}
+        </div>
+      )}
+      {selected && !data.url && appendSecondaryActions && (
+        <div className="toolbar">{appendSecondaryActions}</div>
+      )}
+      {data.url ? (
+        <div>
+          <LoadablePDFViewer
+            document={{
+              url: dataUrl,
+            }}
+            css="pdf-viewer"
+            navigation={CustomNavigation}
+            initial_page={1}
           />
-        )}
+        </div>
+      ) : (
+        <UploadWidget
+          block={block}
+          id={`upload-widget-${block}`}
+          value={data?.url}
+          onChange={(id, value) => onSelectItem(value)}
+          onFocus={() => onSelectBlock(block)}
+          icon={pdfSVG}
+          pathname={pathname}
+          openObjectBrowser={openObjectBrowser}
+        />
+      )}
 
-        <SidebarPortal selected={this.props.selected}>
-          <Segment.Group raised>
-            <header className="header pulled">
-              <h2> PDF Block </h2>
-            </header>
+      <SidebarPortal selected={selected}>
+        <Segment.Group raised>
+          <header className="header pulled">
+            <h2> PDF Block </h2>
+          </header>
 
-            {!data.url && (
-              <>
-                <Segment className="sidebar-metadata-container" secondary>
-                  <FormattedMessage
-                    id="No PDF selected"
-                    defaultMessage="No PDF selected"
+          {!data.url && (
+            <>
+              <Segment className="sidebar-metadata-container" secondary>
+                <FormattedMessage
+                  id="No PDF selected"
+                  defaultMessage="No PDF selected"
+                />
+                <img src={pdfSVG} alt="" />
+              </Segment>
+            </>
+          )}
+          {data.url && (
+            <>
+              <Segment className="sidebar-metadata-container" secondary>
+                {data.url.split('/').slice(-1)[0]}
+                <img src={pdfSVG} alt="" />
+              </Segment>
+              <Segment className="form sidebar-image-data">
+                {data.url.includes(config.settings.apiPath) && (
+                  <TextWidget
+                    id="Origin"
+                    title={intl.formatMessage(messages.Origin)}
+                    required={false}
+                    value={data.url.split('/').slice(-1)[0]}
+                    icon={navTreeSVG}
+                    iconAction={() =>
+                      openObjectBrowser({
+                        mode: 'link',
+                        onSelectItem,
+                      })
+                    }
+                    onChange={() => {}}
                   />
-                  <img src={pdfSVG} alt="" />
-                </Segment>
-              </>
-            )}
-            {data.url && (
-              <>
-                <Segment className="sidebar-metadata-container" secondary>
-                  {data.url.split('/').slice(-1)[0]}
-                  <img src={pdfSVG} alt="" />
-                </Segment>
-                <Segment className="form sidebar-image-data">
-                  {data.url.includes(config.settings.apiPath) && (
-                    <TextWidget
-                      id="Origin"
-                      title={this.props.intl.formatMessage(messages.Origin)}
-                      required={false}
-                      value={data.url.split('/').slice(-1)[0]}
-                      icon={navTreeSVG}
-                      iconAction={() =>
-                        this.props.openObjectBrowser({
-                          mode: 'link',
-                          onSelectItem,
-                        })
-                      }
-                      onChange={() => {}}
-                    />
-                  )}
-                  {!data.url.includes(config.settings.apiPath) && (
-                    <TextWidget
-                      id="external"
-                      title={this.props.intl.formatMessage(
-                        messages.externalURL,
-                      )}
-                      required={false}
-                      value={data.url}
-                      icon={clearSVG}
-                      iconAction={() =>
-                        this.props.onChangeBlock(this.props.block, {
-                          ...data,
-                          url: '',
-                        })
-                      }
-                      onChange={() => {}}
-                    />
-                  )}
-                </Segment>
-              </>
-            )}
-          </Segment.Group>
-        </SidebarPortal>
-      </div>
-    );
-  }
+                )}
+                {!data.url.includes(config.settings.apiPath) && (
+                  <TextWidget
+                    id="external"
+                    title={intl.formatMessage(messages.externalURL)}
+                    required={false}
+                    value={data.url}
+                    icon={clearSVG}
+                    iconAction={() =>
+                      onChangeBlock(block, {
+                        ...data,
+                        url: '',
+                      })
+                    }
+                    onChange={() => {}}
+                  />
+                )}
+              </Segment>
+            </>
+          )}
+        </Segment.Group>
+      </SidebarPortal>
+    </div>
+  );
 }
+
+Edit.propTypes = {
+  selected: PropTypes.bool.isRequired,
+  block: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired,
+  data: PropTypes.objectOf(PropTypes.any).isRequired,
+  content: PropTypes.objectOf(PropTypes.any).isRequired,
+  request: PropTypes.shape({
+    loading: PropTypes.bool,
+    loaded: PropTypes.bool,
+  }).isRequired,
+  pathname: PropTypes.string.isRequired,
+  onChangeBlock: PropTypes.func.isRequired,
+  onSelectBlock: PropTypes.func.isRequired,
+  onDeleteBlock: PropTypes.func.isRequired,
+  onFocusPreviousBlock: PropTypes.func.isRequired,
+  onFocusNextBlock: PropTypes.func.isRequired,
+  handleKeyDown: PropTypes.func.isRequired,
+  createContent: PropTypes.func.isRequired,
+  openObjectBrowser: PropTypes.func.isRequired,
+};
 
 export default compose(
   injectIntl,
   connect(
     (state, props) => ({
       request: state.content.subrequests[props.block] || {},
-      content: state.content.subrequests[props.block]?.data,
+      content: state.content.subrequests[props.block]?.data || {},
     }),
     { createContent },
   ),

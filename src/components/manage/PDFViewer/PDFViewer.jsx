@@ -77,8 +77,6 @@ function PDFViewer({
   css,
   document: source,
 }) {
-  console.log('document', source);
-
   const [scale, setScale] = React.useState(initialScale);
   const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
   const [totalPages, setTotalPages] = React.useState(0);
@@ -167,7 +165,7 @@ function PDFViewer({
         }}
       >
         {({ pdfDocument, pdfPage, canvas }) => {
-          console.log('pdf', pdfDocument, pdfPage, canvas, source);
+          // console.log('pdf', pdfDocument, pdfPage, canvas, source);
           return loaded ? canvas : <LoaderComponent canvas={canvas} />;
         }}
       </PDF>
@@ -202,8 +200,8 @@ PDFViewer.propTypes = {
   page: PropTypes.number,
   scale: PropTypes.number,
   css: PropTypes.string,
-  onDocumentClick: PropTypes.func,
-  onDocumentComplete: PropTypes.func,
+  // onDocumentClick: PropTypes.func,
+  // onDocumentComplete: PropTypes.func,
 
   hideNavbar: PropTypes.bool,
   navigation: PropTypes.oneOfType([
