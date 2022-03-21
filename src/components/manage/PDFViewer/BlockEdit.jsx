@@ -78,52 +78,6 @@ class Edit extends Component {
     openObjectBrowser: PropTypes.func.isRequired,
   };
 
-  state = {
-    url: '',
-    currentPage: 1,
-    pageCount: 0,
-  };
-
-  componentDidMount() {
-    LoadablePDFViewer.load().then(() => {
-      const pdfWrapper = document.querySelector('.pdf-viewer');
-      if (pdfWrapper) {
-        pdfWrapper.addEventListener('wheel', this.handleWheel);
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    const pdfWrapper = document.querySelector('.pdf-viewer');
-    if (pdfWrapper) {
-      pdfWrapper.removeEventListener('wheel', this.handleWheel);
-    }
-  }
-
-  handleWheel = (event) => {
-    let page;
-    if (event.deltaY < 0) {
-      page = Math.max(this.state.currentPage - 1, 1);
-      this.setState({
-        currentPage: page,
-      });
-    } else if (event.deltaY > 0) {
-      page = Math.min(this.state.currentPage + 1, this.state.pageCount);
-      this.setState({
-        currentPage: page,
-      });
-    }
-
-    event.preventDefault();
-  };
-
-  onDocumentComplete = ({ page, pages }) => {
-    this.setState({
-      currentPage: page,
-      pageCount: pages,
-    });
-  };
-
   componentDidUpdate(prevProps) {
     if (prevProps.request.loading && this.props.request.loaded) {
       const id = this.props.content['@id'];
@@ -134,20 +88,6 @@ class Edit extends Component {
       });
     }
   }
-
-  /**
-   * Change url handler
-   * @method onChangeUrl
-   * @param {Object} target Target object
-   * @returns {undefined}
-   */
-  onChangeUrl = ({ target }) => {
-    this.setState({
-      url: target.value,
-    });
-  };
-
-  node = React.createRef();
 
   /**
    * Render method.
@@ -210,7 +150,7 @@ class Edit extends Component {
               }}
               css="pdf-viewer"
               navigation={CustomNavigation}
-              page={this.state.currentPage}
+              initial_page={1}
               onDocumentComplete={this.onDocumentComplete}
             />
           </div>
