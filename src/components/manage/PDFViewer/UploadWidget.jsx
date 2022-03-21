@@ -208,7 +208,7 @@ const UploadWidget = ({
                       disabled={!value}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onSubmitUrl();
+                        onChange(id, localValue);
                       }}
                     >
                       <Icon name={aheadSVG} size="30px" />

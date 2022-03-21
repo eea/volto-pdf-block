@@ -16,11 +16,16 @@ const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
   ssr: false,
 });
 
+const downloadUrl = (url) =>
+  url.indexOf('@@download') === -1
+    ? `${flattenToAppURL(url)}/@@download/file`
+    : url;
+
 const PDFBlockView = ({ data }) => {
   const dataUrl =
     (data.url &&
       (data.url.includes(config.settings.apiPath) || data.url.startsWith('/')
-        ? `${flattenToAppURL(data.url)}/@@download/file`
+        ? downloadUrl(data.url)
         : urlToCorsProxy(data.url))) ||
     null;
 
