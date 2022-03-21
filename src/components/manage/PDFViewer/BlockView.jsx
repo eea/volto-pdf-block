@@ -16,17 +16,17 @@ const LoadablePDFViewer = loadable(() => import('./PDFViewer'), {
   ssr: false,
 });
 
-const PDFView = ({ data }) => {
+const PDFBlockView = ({ data }) => {
   const dataUrl =
     (data.url &&
-      (data.url.includes(config.settings.apiPath)
+      (data.url.includes(config.settings.apiPath) || data.url.startsWith('/')
         ? `${flattenToAppURL(data.url)}/@@download/file`
         : urlToCorsProxy(data.url))) ||
     null;
 
   return (
     <div className="pdf-viewer-block">
-      {data.url && (
+      {dataUrl && (
         <div className="pdf-wrapper">
           <LoadablePDFViewer
             document={{
@@ -50,8 +50,8 @@ const PDFView = ({ data }) => {
  * @property {Object} propTypes Property types.
  * @static
  */
-PDFView.propTypes = {
+PDFBlockView.propTypes = {
   data: PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
-export default PDFView;
+export default PDFBlockView;

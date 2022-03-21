@@ -7,25 +7,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { Segment } from 'semantic-ui-react';
+import { Button, Segment } from 'semantic-ui-react';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 
 import config from '@plone/volto/registry';
 
 import {
   BlockDataForm,
+  Icon,
   SidebarPortal,
   TextWidget,
 } from '@plone/volto/components';
 import { createContent } from '@plone/volto/actions';
 
+import PDFBlockView from './BlockView';
 import UploadWidget, { usePrevious } from './UploadWidget';
 import PDFBlockSchema from './schema';
-import PDFBlockView from './BlockView';
 
 import pdfSVG from './pdf-icon.svg';
 import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
+
+import './pdf-styling.css';
 
 const messages = defineMessages({
   ImageBlockInputPlaceholder: {
@@ -49,6 +52,9 @@ function Edit(props) {
     onChangeBlock,
     block,
     selected,
+    appendActions = null,
+    appendSecondaryActions = null,
+    detached,
     pathname,
     openObjectBrowser,
     intl,
@@ -81,6 +87,30 @@ function Edit(props) {
 
   return (
     <div>
+      {selected && !!data.url && (
+        <div className="toolbar">
+          {appendActions}
+          {detached && appendActions && <div className="separator" />}
+          <Button.Group>
+            <Button
+              icon
+              basic
+              onClick={() =>
+                onChangeBlock(block, {
+                  ...data,
+                  url: '',
+                })
+              }
+            >
+              <Icon name={clearSVG} size="24px" color="#e40166" />
+            </Button>
+          </Button.Group>
+          {appendSecondaryActions}
+        </div>
+      )}
+      {selected && !data.url && appendSecondaryActions && (
+        <div className="toolbar">{appendSecondaryActions}</div>
+      )}
       {data.url ? (
         <PDFBlockView {...props} />
       ) : (
@@ -110,18 +140,7 @@ function Edit(props) {
             formData={data}
           />
 
-          {!data.url && (
-            <>
-              <Segment className="sidebar-metadata-container" secondary>
-                <FormattedMessage
-                  id="No PDF selected"
-                  defaultMessage="No PDF selected"
-                />
-                <img src={pdfSVG} alt="" />
-              </Segment>
-            </>
-          )}
-          {data.url && (
+          {data.url ? (
             <>
               <Segment className="sidebar-metadata-container" secondary>
                 {data.url.split('/').slice(-1)[0]}
@@ -162,6 +181,14 @@ function Edit(props) {
                 )}
               </Segment>
             </>
+          ) : (
+            <Segment className="sidebar-metadata-container" secondary>
+              <FormattedMessage
+                id="No PDF selected"
+                defaultMessage="No PDF selected"
+              />
+              <img src={pdfSVG} alt="" />
+            </Segment>
           )}
         </Segment.Group>
       </SidebarPortal>
