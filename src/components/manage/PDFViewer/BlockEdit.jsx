@@ -128,18 +128,6 @@ function Edit(props) {
 
       <SidebarPortal selected={selected}>
         <Segment.Group raised>
-          <BlockDataForm
-            title="Quote"
-            schema={schema}
-            onChangeField={(id, value) => {
-              onChangeBlock(block, {
-                ...data,
-                [id]: value,
-              });
-            }}
-            formData={data}
-          />
-
           {data.url ? (
             <>
               <Segment className="sidebar-metadata-container" secondary>
@@ -190,6 +178,18 @@ function Edit(props) {
               <img src={pdfSVG} alt="" />
             </Segment>
           )}
+
+          <BlockDataForm
+            title={schema.title}
+            schema={schema}
+            onChangeField={(id, value) => {
+              onChangeBlock(block, {
+                ...data,
+                [id]: value,
+              });
+            }}
+            formData={data}
+          />
         </Segment.Group>
       </SidebarPortal>
     </div>

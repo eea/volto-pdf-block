@@ -27,19 +27,19 @@ const PDFBlockView = ({ data }) => {
   return (
     <div className="pdf-viewer-block">
       {dataUrl && (
-        <div className="pdf-wrapper">
-          <LoadablePDFViewer
-            document={{
-              url: dataUrl,
-            }}
-            css="pdf-viewer"
-            navigation={CustomNavigation}
-            showToolbar={!data.hideToolbar}
-            initial_page={data.initial_page}
-            initial_scale={data.initial_scale}
-            initial_scale_ratio={data.initial_scale_ratio}
-          />
-        </div>
+        <LoadablePDFViewer
+          document={{
+            url: dataUrl,
+          }}
+          css="pdf-viewer"
+          navigation={CustomNavigation}
+          showToolbar={!data.hideToolbar}
+          showNavbar={!data.hideNavbar}
+          page={parseInt(data.initialPage || 1)}
+          initial_scale={data.initial_scale}
+          initial_scale_ratio={data.initial_scale_ratio}
+          enableScroll={!data.disableScroll}
+        />
       )}
     </div>
   );

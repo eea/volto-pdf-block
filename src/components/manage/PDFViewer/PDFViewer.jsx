@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import config from '@plone/volto/registry';
 import PDF from '@mikecousins/react-pdf';
+import cx from 'classnames';
 
 import { Icon } from '@plone/volto/components';
 import zoomInSVG from '@plone/volto/icons/add.svg';
@@ -74,11 +75,12 @@ function PDFViewer({
   initialScale = 1.0,
   initial_scale_ratio = 100,
   loader,
-  hideNavbar,
   navigation: NavigationElement,
   css,
   document: source,
+  showNavbar = true,
   showToolbar = true,
+  enableScroll = true,
 }) {
   const [scale, setScale] = React.useState(initialScale);
   const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
@@ -112,6 +114,8 @@ function PDFViewer({
   };
 
   React.useLayoutEffect(() => {
+    if (!enableScroll) return;
+
     function handleWheel(event) {
       if (event.deltaY < 0) {
         setCurrentPage(Math.max(currentPage - 1, 1));
@@ -123,20 +127,26 @@ function PDFViewer({
     }
 
     const pdfWrapper = document.querySelector('.pdf-wrapper');
+
     if (pdfWrapper) {
       pdfWrapper.addEventListener('wheel', handleWheel);
     }
+
     return () => {
       const pdfWrapper = document.querySelector('.pdf-wrapper');
       if (pdfWrapper) {
-        pdfWrapper.addEventListener('wheel', handleWheel);
+        pdfWrapper.removeEventListener('wheel', handleWheel);
       }
     };
-  }, [currentPage, totalPages]);
+  }, [currentPage, totalPages, enableScroll]);
 
   return (
     <div
-      className={!loading && css ? css : 'mgrpdf__wrapper'}
+      className={
+        !loading && css
+          ? cx(css, 'pdf-wrapper')
+          : cx('mgrpdf__wrapper', 'pdf-wrapper')
+      }
       style={mgrpdfStyles.wrapper}
     >
       {showToolbar && (
@@ -153,7 +163,7 @@ function PDFViewer({
         binaryContent={source.binary}
         documentInitParameters={source.connection}
         loading={loader || loading}
-        page={page}
+        page={currentPage}
         scale={scale}
         onPageRenderSuccess={() => {
           setLoading(false);
@@ -164,9 +174,9 @@ function PDFViewer({
           setLoaded(false);
         }}
         workerSrc={config.settings.pdfWorkerSrc}
-        onDocumentLoadSuccess={(pages) => {
+        onDocumentLoadSuccess={(pdfDoc) => {
           setLoaded(true);
-          setTotalPages(pages);
+          setTotalPages(pdfDoc.numPages);
         }}
       >
         {({ pdfDocument, pdfPage, canvas }) => {
@@ -175,7 +185,7 @@ function PDFViewer({
         }}
       </PDF>
 
-      {!hideNavbar && totalPages > 0 ? (
+      {showNavbar && totalPages > 0 ? (
         <NavigationElement
           page={currentPage}
           pages={totalPages}
