@@ -151,11 +151,10 @@ export const usePdf = ({
       const dpRatio = window.devicePixelRatio;
       const CSS_UNITS = 96 / 72;
       let adjustedScale = scale * dpRatio;
-      // debugger;
       adjustedScale = baseWidth
         ? (baseWidth / page.getViewport({ scale: 1, rotation }).width) *
           CSS_UNITS *
-          1.1 // coeficient to make it look good
+          1.0 // coeficient to make it look good
         : adjustedScale;
       const viewport = page.getViewport({ scale: adjustedScale, rotation });
       const canvasEl = canvasRef.current;
@@ -189,7 +188,7 @@ export const usePdf = ({
           renderTask.current = null;
 
           if (isFunction(onPageRenderSuccessRef.current)) {
-            onPageRenderSuccessRef.current(page);
+            onPageRenderSuccessRef.current(page, canvasEl, viewport);
           }
         },
         (err) => {
@@ -223,7 +222,7 @@ export const usePdf = ({
         },
       );
     }
-  }, [canvasRef, page, pdfDocument, rotate, scale]);
+  }, [canvasRef, page, pdfDocument, rotate, scale, baseWidth]);
 
   return { pdfDocument, pdfPage };
 };

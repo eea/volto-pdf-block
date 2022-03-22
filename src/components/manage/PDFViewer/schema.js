@@ -22,6 +22,10 @@ const PDFBlockSchema = () => ({
       type: 'boolean',
       title: 'Fit page width',
     },
+    clickToDownload: {
+      type: 'boolean',
+      title: 'Click to download',
+    },
   },
   fieldsets: [
     {
@@ -32,6 +36,7 @@ const PDFBlockSchema = () => ({
         'hideNavbar',
         'disableScroll',
         'fitPageWidth',
+        'clickToDownload',
         'initialPage',
       ],
     },

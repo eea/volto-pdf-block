@@ -84,6 +84,7 @@ function PDFViewer({
   showToolbar = true,
   enableScroll = true,
   fitPageWidth = false,
+  onPageRenderSuccess,
 }) {
   const [totalPages, setTotalPages] = React.useState(0);
   const [currentPage, setCurrentPage] = React.useState(page);
@@ -178,9 +179,11 @@ function PDFViewer({
           loading={loader || loading}
           page={currentPage}
           scale={scale}
-          onPageRenderSuccess={() => {
+          onPageRenderSuccess={(page, canvasEl, viewport) => {
             setLoading(false);
             setLoaded(true);
+            onPageRenderSuccess &&
+              onPageRenderSuccess(page, canvasEl, viewport);
           }}
           onPageRenderFail={() => {
             setLoading(false);
