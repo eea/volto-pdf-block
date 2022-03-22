@@ -65,7 +65,7 @@ const PDFToolbar = ({ downloadUrl, onScaleUp, onScaleDown, scale_ratio }) => (
     <div>
       <a href={downloadUrl}>
         <button className="pdf-toolbar-btn" title="Download">
-          <Icon name={downloadSVG} size="15px" />
+          <Icon name={downloadSVG} size="20px" />
         </button>
       </a>
     </div>
