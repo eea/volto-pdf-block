@@ -205,7 +205,7 @@ function PDFViewer({
         </PDF>
       )}
 
-      {showNavbar && totalPages > 0 ? (
+      {showNavbar && totalPages > 1 ? (
         <NavigationToolbar
           page={currentPage}
           pages={totalPages}
