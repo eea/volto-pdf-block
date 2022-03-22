@@ -5,7 +5,7 @@ import loadable from '@loadable/component';
 import config from '@plone/volto/registry';
 import { flattenToAppURL } from '@plone/volto/helpers';
 
-import CustomNavigation from './PDFNavigation';
+import NavigationToolbar from './PDFNavigation';
 
 import { urlToCorsProxy } from '../../helpers';
 
@@ -37,13 +37,14 @@ const PDFBlockView = ({ data }) => {
             url: dataUrl,
           }}
           css="pdf-viewer"
-          navigation={CustomNavigation}
+          navigation={NavigationToolbar}
           showToolbar={!data.hideToolbar}
           showNavbar={!data.hideNavbar}
           page={parseInt(data.initialPage || 1)}
           initial_scale={data.initial_scale}
           initial_scale_ratio={data.initial_scale_ratio}
           enableScroll={!data.disableScroll}
+          fitPageWidth={data.fitPageWidth}
         />
       )}
     </div>

@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import config from '@plone/volto/registry';
-import PDF from '@mikecousins/react-pdf';
+// import PDF from '@mikecousins/react-pdf';
+import PDF from './react-pdf';
 import cx from 'classnames';
 
 import { Icon } from '@plone/volto/components';
@@ -18,9 +19,10 @@ const mgrpdfStyles = {};
 
 mgrpdfStyles.wrapper = {
   textAlign: 'center',
+  width: '100%',
 };
 
-const LoaderComponent = ({ canvas }) => (
+const LoaderComponent = ({ children }) => (
   <div
     className="block pdf_viewer selected"
     tabindex="-1"
@@ -39,7 +41,7 @@ const LoaderComponent = ({ canvas }) => (
           <div className="ui indeterminate text loader"></div>
         </div>
       </div>
-      {canvas}
+      {children}
     </div>
   </div>
 );
@@ -75,20 +77,28 @@ function PDFViewer({
   initialScale = 1.0,
   initial_scale_ratio = 100,
   loader,
-  navigation: NavigationElement,
+  navigation: NavigationToolbar,
   css,
   document: source,
   showNavbar = true,
   showToolbar = true,
   enableScroll = true,
+  fitPageWidth = false,
 }) {
-  const [scale, setScale] = React.useState(initialScale);
-  const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
   const [totalPages, setTotalPages] = React.useState(0);
   const [currentPage, setCurrentPage] = React.useState(page);
 
   const [loading, setLoading] = React.useState(true);
   const [loaded, setLoaded] = React.useState(false);
+
+  const nodeRef = React.useRef();
+  const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
+  const [scale, setScale] = React.useState(initialScale);
+  const [baseWidth, setBaseWidth] = React.useState();
+
+  React.useLayoutEffect(() => {
+    setBaseWidth(nodeRef.current.clientWidth);
+  }, []);
 
   React.useEffect(() => {
     setCurrentPage(page || 1);
@@ -142,6 +152,7 @@ function PDFViewer({
 
   return (
     <div
+      ref={nodeRef}
       className={
         !loading && css
           ? cx(css, 'pdf-wrapper')
@@ -157,36 +168,42 @@ function PDFViewer({
           scale_ratio={scale_ratio}
         />
       )}
-      <PDF
-        file={source.file || source.url}
-        content={source.base64}
-        binaryContent={source.binary}
-        documentInitParameters={source.connection}
-        loading={loader || loading}
-        page={currentPage}
-        scale={scale}
-        onPageRenderSuccess={() => {
-          setLoading(false);
-          setLoaded(true);
-        }}
-        onPageRenderFail={() => {
-          setLoading(false);
-          setLoaded(false);
-        }}
-        workerSrc={config.settings.pdfWorkerSrc}
-        onDocumentLoadSuccess={(pdfDoc) => {
-          setLoaded(true);
-          setTotalPages(pdfDoc.numPages);
-        }}
-      >
-        {({ pdfDocument, pdfPage, canvas }) => {
-          // console.log('pdf', pdfDocument, pdfPage, canvas, source);
-          return loaded ? canvas : <LoaderComponent canvas={canvas} />;
-        }}
-      </PDF>
+      {baseWidth && (
+        <PDF
+          baseWidth={fitPageWidth ? baseWidth : undefined}
+          file={source.file || source.url}
+          content={source.base64}
+          binaryContent={source.binary}
+          documentInitParameters={source.connection}
+          loading={loader || loading}
+          page={currentPage}
+          scale={scale}
+          onPageRenderSuccess={() => {
+            setLoading(false);
+            setLoaded(true);
+          }}
+          onPageRenderFail={() => {
+            setLoading(false);
+            setLoaded(false);
+          }}
+          workerSrc={config.settings.pdfWorkerSrc}
+          onDocumentLoadSuccess={(pdfDoc) => {
+            setLoaded(true);
+            setTotalPages(pdfDoc.numPages);
+          }}
+        >
+          {({ pdfDocument, pdfPage, canvas }) => {
+            return loaded ? (
+              canvas
+            ) : (
+              <LoaderComponent>{canvas}</LoaderComponent>
+            );
+          }}
+        </PDF>
+      )}
 
       {showNavbar && totalPages > 0 ? (
-        <NavigationElement
+        <NavigationToolbar
           page={currentPage}
           pages={totalPages}
           handleNextClick={handleNextClick}

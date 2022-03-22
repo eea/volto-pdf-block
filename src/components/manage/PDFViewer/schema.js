@@ -18,12 +18,22 @@ const PDFBlockSchema = () => ({
       title: 'Initial page',
       default: 1,
     },
+    fitPageWidth: {
+      type: 'boolean',
+      title: 'Fit page width',
+    },
   },
   fieldsets: [
     {
       id: 'default',
       title: 'Default',
-      fields: ['hideToolbar', 'hideNavbar', 'disableScroll', 'initialPage'],
+      fields: [
+        'hideToolbar',
+        'hideNavbar',
+        'disableScroll',
+        'fitPageWidth',
+        'initialPage',
+      ],
     },
   ],
   required: [],
