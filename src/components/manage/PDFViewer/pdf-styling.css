@@ -4,7 +4,7 @@
   background-color: #e5e5e5;
 }
 
-.pdf-wrapper {
+.pdf-viewer-block {
   margin-bottom: 50px;
 }
 
@@ -84,4 +84,24 @@
 
 .pdf-toolbar .pdf-pages {
   margin-right: 1em !important;
+}
+
+.pdf-block-download-overlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pdf-block-download-overlay .icon-wrapper {
+  text-align: center;
+}
+
+.pdf-block-download-overlay .icon-wrapper .btn-icon {
+  display: inline-block;
+  /* padding: 0.3em; */
+  /* border-radius: 10%; */
+}
+
+.pdf-block-download-overlay .icon-wrapper .btn-icon svg {
+  margin: 0px !important;
 }
