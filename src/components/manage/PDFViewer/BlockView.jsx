@@ -57,9 +57,15 @@ const PDFBlockView = ({ data }) => {
         : urlToCorsProxy(data.url))) ||
     null;
   const [size, setSize] = React.useState();
+  const [baseWidth, setBaseWidth] = React.useState();
+  const nodeRef = React.useRef();
+
+  React.useLayoutEffect(() => {
+    setBaseWidth(nodeRef.current.clientWidth);
+  }, []);
 
   return (
-    <div className="pdf-viewer-block">
+    <div className="pdf-viewer-block" ref={nodeRef}>
       {data.clickToDownload && size && (
         <DownloadOverlay url={dataUrl} size={size} />
       )}
@@ -78,10 +84,11 @@ const PDFBlockView = ({ data }) => {
           enableScroll={!data.disableScroll}
           fitPageWidth={data.fitPageWidth}
           onPageRenderSuccess={(page, canvasEl, viewport) => {
-            setSize([
-              `${Math.round(viewport.width / CSS_UNITS)}px`,
-              `${Math.round(viewport.height / CSS_UNITS)}px`,
-            ]);
+            const width = Math.round(viewport.viewBox[2] * CSS_UNITS);
+            const height = Math.round(viewport.viewBox[3] * CSS_UNITS);
+            const ratio = width / baseWidth;
+            viewport.viewBox &&
+              setSize([`${width / ratio}px`, `${height / ratio}px`]);
           }}
         />
       )}

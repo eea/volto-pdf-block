@@ -16,6 +16,7 @@ import './pdf-styling.css';
 // https://raw.githubusercontent.com/MGrin/mgr-pdf-viewer-react/master/src/index.js
 
 const mgrpdfStyles = {};
+const CSS_UNITS = 96 / 72;
 
 mgrpdfStyles.wrapper = {
   textAlign: 'center',
@@ -171,7 +172,7 @@ function PDFViewer({
       )}
       {baseWidth && (
         <PDF
-          baseWidth={fitPageWidth ? baseWidth : undefined}
+          baseWidth={fitPageWidth ? baseWidth * CSS_UNITS : undefined}
           file={source.file || source.url}
           content={source.base64}
           binaryContent={source.binary}
