@@ -1,11 +1,15 @@
+.pdf-viewer-block {
+  margin-bottom: 50px;
+}
+
+.pdf-viewer-block.click-to-download .pdf-viewer {
+  background-color: transparent;
+}
+
 .pdf-viewer {
   position: relative;
   overflow: hidden;
   background-color: #e5e5e5;
-}
-
-.pdf-viewer-block {
-  margin-bottom: 50px;
 }
 
 .pdf-toolbar {
