@@ -35,7 +35,6 @@ const DownloadOverlay = ({ url, size }) => {
         width: size[0],
         height: size[1],
         position: 'absolute',
-        background: 'rgb(204, 204, 204, 0.5)',
         zIndex: 2,
       }}
     >

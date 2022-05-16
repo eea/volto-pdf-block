@@ -91,9 +91,12 @@
 }
 
 .pdf-block-download-overlay {
+  position: 'absolute';
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background: rgb(204, 204, 204, 0.3);
 }
 
 .pdf-block-download-overlay .icon-wrapper {
