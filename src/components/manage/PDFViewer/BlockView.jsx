@@ -34,8 +34,6 @@ const DownloadOverlay = ({ url, size }) => {
       style={{
         width: size[0],
         height: size[1],
-        position: 'absolute',
-        zIndex: 2,
       }}
     >
       <div className="icon-wrapper">
