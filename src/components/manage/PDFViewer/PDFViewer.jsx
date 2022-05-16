@@ -126,7 +126,7 @@ function PDFViewer({
   };
 
   React.useLayoutEffect(() => {
-    if (!enableScroll) return;
+    if (!enableScroll || totalPages === 1) return;
 
     function handleWheel(event) {
       if (event.deltaY < 0) {
