@@ -10,7 +10,7 @@ import { flattenToAppURL } from '@plone/volto/helpers';
 
 import NavigationToolbar from './PDFNavigation';
 
-import { urlToCorsProxy } from '../../helpers';
+import { urlToCorsProxy } from '../helpers';
 
 import downloadSVG from '@plone/volto/icons/move-down.svg';
 
