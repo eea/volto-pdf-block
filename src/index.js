@@ -1,5 +1,5 @@
-import PDFBlockView from './components/manage/PDFViewer/BlockView';
-import PDFBlockEdit from './components/manage/PDFViewer/BlockEdit';
+import PDFBlockView from './PDFViewer/BlockView';
+import PDFBlockEdit from './PDFViewer/BlockEdit';
 import chartIcon from '@plone/volto/icons/world.svg';
 
 const applyConfig = (config) => {

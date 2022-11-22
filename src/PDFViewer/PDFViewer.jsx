@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import config from '@plone/volto/registry';
-// import PDF from '@mikecousins/react-pdf';
 import PDF from './react-pdf';
 import cx from 'classnames';
 
@@ -10,12 +9,14 @@ import zoomInSVG from '@plone/volto/icons/add.svg';
 import zoomOutSVG from '@plone/volto/icons/remove.svg';
 import downloadSVG from '@plone/volto/icons/move-down.svg';
 
+import { downloadEvent } from './../events';
 import './pdf-styling.css';
 
 // Based on
 // https://raw.githubusercontent.com/MGrin/mgr-pdf-viewer-react/master/src/index.js
 
 const mgrpdfStyles = {};
+const CSS_UNITS = 96 / 72;
 
 mgrpdfStyles.wrapper = {
   textAlign: 'center',
@@ -46,31 +47,38 @@ const LoaderComponent = ({ children }) => (
   </div>
 );
 
-const PDFToolbar = ({ downloadUrl, onScaleUp, onScaleDown, scale_ratio }) => (
-  <div className="pdf-toolbar pdf-toolbar-top">
-    <div>
-      <button className="pdf-toolbar-btn" title="Zoom In" onClick={onScaleUp}>
-        <Icon name={zoomInSVG} size="15px" />
-      </button>
-      <div className="scale-separator" />
-      <button
-        className="pdf-toolbar-btn"
-        title="Zoom Out"
-        onClick={onScaleDown}
-      >
-        <Icon name={zoomOutSVG} size="15px" />
-      </button>
-      <p className="scale-ratio">{scale_ratio + '%'}</p>
-    </div>
-    <div>
-      <a href={downloadUrl}>
-        <button className="pdf-toolbar-btn" title="Download">
-          <Icon name={downloadSVG} size="20px" />
+const PDFToolbar = ({ source, onScaleUp, onScaleDown, scale_ratio }) => {
+  return (
+    <div className="pdf-toolbar pdf-toolbar-top">
+      <div>
+        <button className="pdf-toolbar-btn" title="Zoom In" onClick={onScaleUp}>
+          <Icon name={zoomInSVG} size="15px" />
         </button>
-      </a>
+        <div className="scale-separator" />
+        <button
+          className="pdf-toolbar-btn"
+          title="Zoom Out"
+          onClick={onScaleDown}
+        >
+          <Icon name={zoomOutSVG} size="15px" />
+        </button>
+        <p className="scale-ratio">{scale_ratio + '%'}</p>
+      </div>
+      <div>
+        <a
+          href={source.url}
+          onClick={() => {
+            downloadEvent(source.url, source.file);
+          }}
+        >
+          <button className="pdf-toolbar-btn" title="Download">
+            <Icon name={downloadSVG} size="20px" />
+          </button>
+        </a>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 function PDFViewer({
   page = 1,
@@ -125,7 +133,7 @@ function PDFViewer({
   };
 
   React.useLayoutEffect(() => {
-    if (!enableScroll) return;
+    if (!enableScroll || totalPages === 1) return;
 
     function handleWheel(event) {
       if (event.deltaY < 0) {
@@ -165,13 +173,13 @@ function PDFViewer({
         <PDFToolbar
           onScaleUp={increaseScale}
           onScaleDown={decreaseScale}
-          downloadUrl={source.url}
+          source={source}
           scale_ratio={scale_ratio}
         />
       )}
       {baseWidth && (
         <PDF
-          baseWidth={fitPageWidth ? baseWidth : undefined}
+          baseWidth={fitPageWidth ? baseWidth * CSS_UNITS : undefined}
           file={source.file || source.url}
           content={source.base64}
           binaryContent={source.binary}
