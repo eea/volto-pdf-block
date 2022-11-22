@@ -47,7 +47,7 @@ const LoaderComponent = ({ children }) => (
   </div>
 );
 
-const PDFToolbar = ({ downloadUrl, onScaleUp, onScaleDown, scale_ratio }) => {
+const PDFToolbar = ({ source, onScaleUp, onScaleDown, scale_ratio }) => {
   return (
     <div className="pdf-toolbar pdf-toolbar-top">
       <div>
@@ -66,9 +66,9 @@ const PDFToolbar = ({ downloadUrl, onScaleUp, onScaleDown, scale_ratio }) => {
       </div>
       <div>
         <a
-          href={downloadUrl}
+          href={source.url}
           onClick={() => {
-            downloadEvent(downloadUrl);
+            downloadEvent(source.url, source.file);
           }}
         >
           <button className="pdf-toolbar-btn" title="Download">
@@ -173,7 +173,7 @@ function PDFViewer({
         <PDFToolbar
           onScaleUp={increaseScale}
           onScaleDown={decreaseScale}
-          downloadUrl={source.url}
+          source={source}
           scale_ratio={scale_ratio}
         />
       )}
