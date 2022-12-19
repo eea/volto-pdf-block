@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useVerticallScroll } from './useVerticallScroll';
 import PropTypes from 'prop-types';
 import config from '@plone/volto/registry';
-// import PDF from '@mikecousins/react-pdf';
 import PDF from './react-pdf';
 import cx from 'classnames';
 
@@ -9,8 +9,8 @@ import { Icon } from '@plone/volto/components';
 import zoomInSVG from '@plone/volto/icons/add.svg';
 import zoomOutSVG from '@plone/volto/icons/remove.svg';
 import downloadSVG from '@plone/volto/icons/move-down.svg';
-
 import './pdf-styling.css';
+import './pdf-pagePrev-styling.css';
 
 // Based on
 // https://raw.githubusercontent.com/MGrin/mgr-pdf-viewer-react/master/src/index.js
@@ -20,6 +20,129 @@ const mgrpdfStyles = {};
 mgrpdfStyles.wrapper = {
   textAlign: 'center',
   width: '100%',
+};
+
+const PagesPreview = ({ pdfDocument, handlePageClick, currentPage }) => {
+  const renderTasks = useRef([]);
+  const ratio = useRef(0);
+  const pages = useRef([]);
+  const [pagesIndexes, setPagesIndexes] = useState([]);
+  const [startRender, setStartRender] = useState(false);
+  const height = 160;
+
+  const scrollRef = useVerticallScroll();
+
+  // draw a page of the pdf
+  const drawPDF = useCallback(
+    (page, canvasRef) => {
+      const { pageIndex } = page;
+      let renderTask = renderTasks.current[pageIndex];
+
+      const baseViewport = page.getViewport({
+        scale: 1,
+      });
+
+      const dpRatio = window.devicePixelRatio;
+      let adjustedScale = 1 * dpRatio;
+      adjustedScale = height ? height / baseViewport.height : adjustedScale;
+      const viewport = page.getViewport({ scale: adjustedScale });
+      const canvasEl = canvasRef.current;
+
+      if (!canvasEl) {
+        return;
+      }
+
+      const canvasContext = canvasEl.getContext('2d');
+      if (!canvasContext) {
+        return;
+      }
+
+      canvasEl.style.width = `${height * ratio.current}px`;
+      canvasEl.style.height = `${height}px`;
+      canvasEl.height = height;
+      canvasEl.width = height * ratio.current;
+
+      // if previous render isn't done yet, we cancel it
+      if (renderTask) {
+        renderTask.cancel();
+        return;
+      }
+
+      renderTask = page.render({
+        canvasContext,
+        viewport,
+      });
+
+      renderTasks.current[pageIndex] = renderTask;
+
+      return renderTask.promise.then(
+        () => {
+          renderTasks.current[pageIndex] = null;
+        },
+        (err) => {
+          renderTasks.current[pageIndex] = null;
+
+          // @ts-ignore typings are outdated
+          if (err && err.name === 'RenderingCancelledException') {
+            drawPDF(page, canvasRef);
+          }
+        },
+      );
+    },
+    [ratio],
+  );
+
+  useEffect(() => {
+    if (pdfDocument && pdfDocument.numPages !== pagesIndexes.length) {
+      setPagesIndexes([...Array(pdfDocument.numPages).keys()]);
+    }
+    if (pdfDocument && pages.current.length === 0 && pagesIndexes.length > 0) {
+      pagesIndexes.forEach((pageIndex) => {
+        pdfDocument.getPage(pageIndex + 1).then((page) => {
+          pages.current[page.pageIndex] = page;
+          if (page.pageIndex === pagesIndexes.length - 1) {
+            pages.current.forEach((page) => {
+              const baseViewport = page.getViewport({
+                scale: 1,
+                rotation: page.rotate,
+              });
+              const baseRatio = baseViewport.width / baseViewport.height;
+
+              if (baseRatio > ratio.current) {
+                ratio.current = baseRatio;
+              }
+            });
+
+            setStartRender(true);
+          }
+        });
+      });
+    }
+  }, [pdfDocument, pagesIndexes]);
+
+  useEffect(() => {
+    if (startRender && ratio.current) {
+      pages.current.forEach((page) => {
+        const pageIndex = page.pageIndex;
+        const canvasRef = {
+          current: document.getElementById(`pdf-preview-${pageIndex}`),
+        };
+        drawPDF(page, canvasRef);
+      });
+    }
+  }, [startRender, drawPDF]);
+
+  return pagesIndexes.map((page) => (
+    <div ref={scrollRef} key={`pdf-preview-${page}`}>
+      <canvas
+        className={page === currentPage - 1 ? 'highlight-page' : 'page-wrapper'}
+        onClick={() => {
+          handlePageClick(page + 1);
+        }}
+        id={`pdf-preview-${page}`}
+      />
+    </div>
+  ));
 };
 
 const LoaderComponent = ({ children }) => (
@@ -82,13 +205,13 @@ function PDFViewer({
   document: source,
   showNavbar = true,
   showToolbar = true,
-  enableScroll = true,
+  showPagesPreview = true,
+  enableScroll = false,
   fitPageWidth = false,
   onPageRenderSuccess,
 }) {
   const [totalPages, setTotalPages] = React.useState(0);
   const [currentPage, setCurrentPage] = React.useState(page);
-
   const [loading, setLoading] = React.useState(true);
   const [loaded, setLoaded] = React.useState(false);
 
@@ -114,6 +237,10 @@ function PDFViewer({
     setScale_ratio(scale_ratio - 10);
   };
 
+  const handlePageClick = (page) => {
+    setCurrentPage(page);
+  };
+
   const handlePrevClick = () => {
     if (currentPage === 1) return;
     setCurrentPage(currentPage - 1);
@@ -125,7 +252,7 @@ function PDFViewer({
   };
 
   React.useLayoutEffect(() => {
-    if (!enableScroll) return;
+    if (enableScroll) return;
 
     function handleWheel(event) {
       if (event.deltaY < 0) {
@@ -137,14 +264,14 @@ function PDFViewer({
       event.preventDefault();
     }
 
-    const pdfWrapper = document.querySelector('.pdf-wrapper');
+    const pdfWrapper = document.querySelector('.pdf-main');
 
     if (pdfWrapper) {
       pdfWrapper.addEventListener('wheel', handleWheel);
     }
 
     return () => {
-      const pdfWrapper = document.querySelector('.pdf-wrapper');
+      const pdfWrapper = document.querySelector('.pdf-main');
       if (pdfWrapper) {
         pdfWrapper.removeEventListener('wheel', handleWheel);
       }
@@ -169,8 +296,10 @@ function PDFViewer({
           scale_ratio={scale_ratio}
         />
       )}
+
       {baseWidth && (
         <PDF
+          showPagesPreview={showPagesPreview}
           baseWidth={fitPageWidth ? baseWidth : undefined}
           file={source.file || source.url}
           content={source.base64}
@@ -197,7 +326,18 @@ function PDFViewer({
         >
           {({ pdfDocument, pdfPage, canvas }) => {
             return loaded ? (
-              canvas
+              <div className="global-view">
+                {showPagesPreview && (
+                  <div className="pages-preview">
+                    <PagesPreview
+                      currentPage={currentPage}
+                      pdfDocument={pdfDocument}
+                      handlePageClick={handlePageClick}
+                    />
+                  </div>
+                )}
+                <div className="pdf-main"> {canvas}</div>
+              </div>
             ) : (
               <LoaderComponent>{canvas}</LoaderComponent>
             );

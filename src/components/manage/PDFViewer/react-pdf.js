@@ -2,7 +2,13 @@
 // https://github.com/mikecousins/react-pdf-js/blob/9afbc77a15105fb8b0332dc0e531e27ec049dad2/src/index.tsx
 
 import pdfjs from '@bundled-es-modules/pdfjs-dist';
-import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useImperativeHandle,
+} from 'react';
 
 function isFunction(value) {
   return typeof value === 'function';
@@ -27,6 +33,7 @@ const Pdf = React.forwardRef(
       withCredentials,
       baseWidth,
       children,
+      showPagesPreview,
       ...canvasProps
     },
     ref,
@@ -91,6 +98,71 @@ export const usePdf = ({
   const onPageRenderSuccessRef = useRef(onPageRenderSuccess);
   const onPageRenderFailRef = useRef(onPageRenderFail);
 
+  // draw a page of the pdf
+  const drawPDF = useCallback(
+    (page, canvasRef) => {
+      // Because this page's rotation option overwrites pdf default rotation value,
+      // calculating page rotation option value from pdf default and this component prop rotate.
+      const rotation = rotate === 0 ? page.rotate : page.rotate + rotate;
+      const dpRatio = window.devicePixelRatio;
+      const CSS_UNITS = 96 / 72;
+      let adjustedScale = scale * dpRatio;
+      adjustedScale = baseWidth
+        ? (baseWidth / page.getViewport({ scale: 1, rotation }).width) *
+          CSS_UNITS *
+          1.0 // coeficient to make it look good
+        : adjustedScale;
+      const viewport = page.getViewport({ scale: adjustedScale, rotation });
+      const canvasEl = canvasRef.current;
+
+      if (!canvasEl) {
+        return;
+      }
+
+      const canvasContext = canvasEl.getContext('2d');
+      if (!canvasContext) {
+        return;
+      }
+
+      canvasEl.style.width = `${viewport.width / dpRatio}px`;
+      canvasEl.style.height = `${viewport.height / dpRatio}px`;
+      canvasEl.height = viewport.height;
+      canvasEl.width = viewport.width;
+
+      // if previous render isn't done yet, we cancel it
+      if (renderTask.current) {
+        renderTask.current.cancel();
+        return;
+      }
+
+      renderTask.current = page.render({
+        canvasContext,
+        viewport,
+      });
+
+      return renderTask.current.promise.then(
+        () => {
+          renderTask.current = null;
+
+          if (isFunction(onPageRenderSuccessRef.current)) {
+            onPageRenderSuccessRef.current(page, canvasEl, viewport);
+          }
+        },
+        (err) => {
+          renderTask.current = null;
+
+          // @ts-ignore typings are outdated
+          if (err && err.name === 'RenderingCancelledException') {
+            drawPDF(page, canvasRef);
+          } else if (isFunction(onPageRenderFailRef.current)) {
+            onPageRenderFailRef.current();
+          }
+        },
+      );
+    },
+    [baseWidth, rotate, scale],
+  );
+
   // assign callbacks to refs to avoid redrawing
   useEffect(() => {
     onDocumentLoadSuccessRef.current = onDocumentLoadSuccess;
@@ -143,67 +215,6 @@ export const usePdf = ({
   }, [file, withCredentials, cMapUrl, cMapPacked]);
 
   useEffect(() => {
-    // draw a page of the pdf
-    const drawPDF = (page) => {
-      // Because this page's rotation option overwrites pdf default rotation value,
-      // calculating page rotation option value from pdf default and this component prop rotate.
-      const rotation = rotate === 0 ? page.rotate : page.rotate + rotate;
-      const dpRatio = window.devicePixelRatio;
-      const CSS_UNITS = 96 / 72;
-      let adjustedScale = scale * dpRatio;
-      adjustedScale = baseWidth
-        ? (baseWidth / page.getViewport({ scale: 1, rotation }).width) *
-          CSS_UNITS *
-          1.0 // coeficient to make it look good
-        : adjustedScale;
-      const viewport = page.getViewport({ scale: adjustedScale, rotation });
-      const canvasEl = canvasRef.current;
-      if (!canvasEl) {
-        return;
-      }
-
-      const canvasContext = canvasEl.getContext('2d');
-      if (!canvasContext) {
-        return;
-      }
-
-      canvasEl.style.width = `${viewport.width / dpRatio}px`;
-      canvasEl.style.height = `${viewport.height / dpRatio}px`;
-      canvasEl.height = viewport.height;
-      canvasEl.width = viewport.width;
-
-      // if previous render isn't done yet, we cancel it
-      if (renderTask.current) {
-        renderTask.current.cancel();
-        return;
-      }
-
-      renderTask.current = page.render({
-        canvasContext,
-        viewport,
-      });
-
-      return renderTask.current.promise.then(
-        () => {
-          renderTask.current = null;
-
-          if (isFunction(onPageRenderSuccessRef.current)) {
-            onPageRenderSuccessRef.current(page, canvasEl, viewport);
-          }
-        },
-        (err) => {
-          renderTask.current = null;
-
-          // @ts-ignore typings are outdated
-          if (err && err.name === 'RenderingCancelledException') {
-            drawPDF(page);
-          } else if (isFunction(onPageRenderFailRef.current)) {
-            onPageRenderFailRef.current();
-          }
-        },
-      );
-    };
-
     if (pdfDocument) {
       pdfDocument.getPage(page).then(
         (loadedPdfPage) => {
@@ -213,7 +224,7 @@ export const usePdf = ({
             onPageLoadSuccessRef.current(loadedPdfPage);
           }
 
-          drawPDF(loadedPdfPage);
+          drawPDF(loadedPdfPage, canvasRef);
         },
         () => {
           if (isFunction(onPageLoadFailRef.current)) {
@@ -222,9 +233,9 @@ export const usePdf = ({
         },
       );
     }
-  }, [canvasRef, page, pdfDocument, rotate, scale, baseWidth]);
+  }, [canvasRef, page, pdfDocument, drawPDF]);
 
-  return { pdfDocument, pdfPage };
+  return { pdfDocument, pdfPage, drawPDF };
 };
 
 export default Pdf;

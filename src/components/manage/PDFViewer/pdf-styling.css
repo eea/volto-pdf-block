@@ -105,3 +105,7 @@
 .pdf-block-download-overlay .icon-wrapper .btn-icon svg {
   margin: 0px !important;
 }
+
+.pdf-page-preview {
+  margin: 50;
+}

@@ -1,0 +1,25 @@
+.page-wrapper {
+  margin: 15px;
+}
+
+.pages-preview {
+  width: 17%;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.pdf-main {
+  margin: auto;
+}
+
+.highlight-page {
+  /* border: 3px solid rgb(196, 196, 196); */
+  margin: 15px;
+  box-shadow: 0 0 15px rgb(63, 196, 236);
+}
+
+.global-view {
+  display: flex;
+}
