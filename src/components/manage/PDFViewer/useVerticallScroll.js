@@ -6,8 +6,6 @@ export function useVerticallScroll() {
     const el = elRef.current;
     if (el) {
       const onWheel = (e) => {
-        // eslint-disable-next-line no-console
-        console.log(e);
         if (e.deltaY === 0) return;
         e.preventDefault();
         el.scrollTo({

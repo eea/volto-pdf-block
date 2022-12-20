@@ -11,6 +11,7 @@ import zoomOutSVG from '@plone/volto/icons/remove.svg';
 import downloadSVG from '@plone/volto/icons/move-down.svg';
 import './pdf-styling.css';
 import './pdf-pagePrev-styling.css';
+import { doc } from 'prettier';
 
 // Based on
 // https://raw.githubusercontent.com/MGrin/mgr-pdf-viewer-react/master/src/index.js
@@ -220,6 +221,12 @@ function PDFViewer({
   const [scale, setScale] = React.useState(initialScale);
   const [baseWidth, setBaseWidth] = React.useState();
 
+  const ref = useRef(null);
+
+  useEffect(() => {
+    ref.current = document.getElementById('pdf-preview-1');
+  }, []);
+
   React.useLayoutEffect(() => {
     setBaseWidth(nodeRef.current.clientWidth);
   }, []);
@@ -244,11 +251,17 @@ function PDFViewer({
   const handlePrevClick = () => {
     if (currentPage === 1) return;
     setCurrentPage(currentPage - 1);
+    document
+      .getElementById('page-sidebar')
+      .scrollTo({ top: 195 * (currentPage - 2) });
   };
 
   const handleNextClick = () => {
     if (currentPage === totalPages) return;
     setCurrentPage(currentPage + 1);
+    document
+      .getElementById('page-sidebar')
+      .scrollTo({ top: 195 * currentPage });
   };
 
   React.useLayoutEffect(() => {
@@ -328,7 +341,7 @@ function PDFViewer({
             return loaded ? (
               <div className="global-view">
                 {showPagesPreview && (
-                  <div className="pages-preview">
+                  <div className="pages-preview" id="page-sidebar">
                     <PagesPreview
                       currentPage={currentPage}
                       pdfDocument={pdfDocument}
@@ -347,6 +360,7 @@ function PDFViewer({
 
       {showNavbar && totalPages > 1 ? (
         <NavigationToolbar
+          ref={ref}
           page={currentPage}
           pages={totalPages}
           handleNextClick={handleNextClick}
