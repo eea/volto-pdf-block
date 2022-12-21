@@ -11,7 +11,6 @@ import zoomOutSVG from '@plone/volto/icons/remove.svg';
 import downloadSVG from '@plone/volto/icons/move-down.svg';
 import './pdf-styling.css';
 import './pdf-pagePrev-styling.css';
-import { doc } from 'prettier';
 
 // Based on
 // https://raw.githubusercontent.com/MGrin/mgr-pdf-viewer-react/master/src/index.js
@@ -207,7 +206,6 @@ function PDFViewer({
   showNavbar = true,
   showToolbar = true,
   showPagesPreview = true,
-  enableScroll = false,
   fitPageWidth = false,
   onPageRenderSuccess,
 }) {
@@ -263,33 +261,6 @@ function PDFViewer({
       .getElementById('page-sidebar')
       .scrollTo({ top: 195 * currentPage });
   };
-
-  React.useLayoutEffect(() => {
-    if (enableScroll) return;
-
-    function handleWheel(event) {
-      if (event.deltaY < 0) {
-        setCurrentPage(Math.max(currentPage - 1, 1));
-      } else if (event.deltaY > 0) {
-        setCurrentPage(Math.min(currentPage + 1, totalPages));
-      }
-
-      event.preventDefault();
-    }
-
-    const pdfWrapper = document.querySelector('.pdf-main');
-
-    if (pdfWrapper) {
-      pdfWrapper.addEventListener('wheel', handleWheel);
-    }
-
-    return () => {
-      const pdfWrapper = document.querySelector('.pdf-main');
-      if (pdfWrapper) {
-        pdfWrapper.removeEventListener('wheel', handleWheel);
-      }
-    };
-  }, [currentPage, totalPages, enableScroll]);
 
   return (
     <div
