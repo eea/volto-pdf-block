@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { v4 as uuid } from 'uuid';
 import { useVerticallScroll } from './useVerticallScroll';
 import PropTypes from 'prop-types';
 import config from '@plone/volto/registry';
@@ -23,9 +24,11 @@ mgrpdfStyles.wrapper = {
 };
 
 const PagesPreview = ({ pdfDocument, handlePageClick, currentPage }) => {
+  const [id] = useState(uuid());
   const renderTasks = useRef([]);
   const ratio = useRef(0);
   const pages = useRef([]);
+  const pagesNode = useRef(null);
   const [pagesIndexes, setPagesIndexes] = useState([]);
   const [startRender, setStartRender] = useState(false);
   const height = 160;
@@ -125,24 +128,60 @@ const PagesPreview = ({ pdfDocument, handlePageClick, currentPage }) => {
       pages.current.forEach((page) => {
         const pageIndex = page.pageIndex;
         const canvasRef = {
-          current: document.getElementById(`pdf-preview-${pageIndex}`),
+          current: document.getElementById(
+            `pdf-preview-${pageIndex + 1}-${id}`,
+          ),
         };
         drawPDF(page, canvasRef);
       });
     }
-  }, [startRender, drawPDF]);
+  }, [startRender, drawPDF, id]);
 
-  return pagesIndexes.map((page) => (
-    <div ref={scrollRef} key={`pdf-preview-${page}`}>
-      <canvas
-        className={page === currentPage - 1 ? 'highlight-page' : 'page-wrapper'}
-        onClick={() => {
-          handlePageClick(page + 1);
-        }}
-        id={`pdf-preview-${page}`}
-      />
+  useEffect(() => {
+    // Get DOM elements
+    const pagesContainerEl = pagesNode.current;
+    const pagePreviewEl = document.getElementById(
+      `pdf-preview-${currentPage}-${id}`,
+    );
+    if (!pagesContainerEl || !pagePreviewEl) return;
+    // Get dimensions
+    const pagesContainerBox = pagesContainerEl.getBoundingClientRect();
+    const pagePreviewBox = pagePreviewEl.getBoundingClientRect();
+
+    const top = pagePreviewBox.y - pagesContainerBox.y;
+    const direction = top > 0 ? 'down' : 'up';
+    const offset = pagePreviewBox.height + 48;
+    const inView =
+      direction === 'down'
+        ? Math.abs(top + offset) <= pagesContainerBox.height
+        : Math.abs(top - offset) <= pagesContainerBox.height;
+    const yScroll =
+      direction === 'down'
+        ? top + offset - pagesContainerBox.height
+        : top - offset - pagesContainerBox.height;
+
+    if (!inView) {
+      pagesContainerEl.scrollBy(0, yScroll);
+    }
+  }, [currentPage, id]);
+
+  return (
+    <div ref={pagesNode} className="pdf-pages-preview">
+      {pagesIndexes.map((page) => (
+        <div ref={scrollRef} key={`pdf-preview-${page + 1}-${id}`}>
+          <canvas
+            className={
+              page === currentPage - 1 ? 'highlight-page' : 'page-wrapper'
+            }
+            onClick={() => {
+              handlePageClick(page + 1);
+            }}
+            id={`pdf-preview-${page + 1}-${id}`}
+          />
+        </div>
+      ))}
     </div>
-  ));
+  );
 };
 
 const LoaderComponent = ({ children }) => (
@@ -205,12 +244,14 @@ function PDFViewer({
   document: source,
   showNavbar = true,
   showToolbar = true,
-  showPagesPreview = true,
+  enableScroll = true,
+  showPagesPreview = false,
   fitPageWidth = false,
   onPageRenderSuccess,
 }) {
   const [totalPages, setTotalPages] = React.useState(0);
   const [currentPage, setCurrentPage] = React.useState(page);
+
   const [loading, setLoading] = React.useState(true);
   const [loaded, setLoaded] = React.useState(false);
 
@@ -218,12 +259,6 @@ function PDFViewer({
   const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
   const [scale, setScale] = React.useState(initialScale);
   const [baseWidth, setBaseWidth] = React.useState();
-
-  const ref = useRef(null);
-
-  useEffect(() => {
-    ref.current = document.getElementById('pdf-preview-1');
-  }, []);
 
   React.useLayoutEffect(() => {
     setBaseWidth(nodeRef.current.clientWidth);
@@ -249,18 +284,74 @@ function PDFViewer({
   const handlePrevClick = () => {
     if (currentPage === 1) return;
     setCurrentPage(currentPage - 1);
-    document
-      .getElementById('page-sidebar')
-      .scrollTo({ top: 195 * (currentPage - 2) });
+    // document
+    //   .getElementById('page-sidebar')
+    //   .scrollTo({ top: 195 * (currentPage - 2) });
   };
 
   const handleNextClick = () => {
     if (currentPage === totalPages) return;
     setCurrentPage(currentPage + 1);
-    document
-      .getElementById('page-sidebar')
-      .scrollTo({ top: 195 * currentPage });
+    // document
+    //   .getElementById('page-sidebar')
+    //   .scrollTo({ top: 195 * currentPage });
   };
+
+  React.useLayoutEffect(() => {
+    if (!enableScroll) return;
+
+    function handleWheel(event) {
+      if (event.deltaY < 0) {
+        setCurrentPage(Math.max(currentPage - 1, 1));
+      } else if (event.deltaY > 0) {
+        setCurrentPage(Math.min(currentPage + 1, totalPages));
+      }
+
+      event.preventDefault();
+    }
+
+    const isPdfWrapper = nodeRef.current?.classList?.contains('pdf-wrapper');
+    const pdfWrapper = isPdfWrapper ? nodeRef.current : null;
+
+    if (pdfWrapper) {
+      pdfWrapper.addEventListener('wheel', handleWheel);
+    }
+
+    return () => {
+      if (pdfWrapper) {
+        pdfWrapper.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [currentPage, totalPages, enableScroll]);
+
+  // React.useLayoutEffect(() => {
+  //   if (!enableScroll) return;
+
+  //   function handleWheel(event) {
+  //     if (event.deltaY < 0) {
+  //       setCurrentPage(Math.max(currentPage - 1, 1));
+  //     } else if (event.deltaY > 0) {
+  //       setCurrentPage(Math.min(currentPage + 1, totalPages));
+  //     }
+
+  //     event.preventDefault();
+  //   }
+
+  //   const pdfWrapper = document.querySelector('.pdf-wrapper');
+
+  //   console.log('HERE', pdfWrapper);
+
+  //   if (pdfWrapper) {
+  //     pdfWrapper.addEventListener('wheel', handleWheel);
+  //   }
+
+  //   return () => {
+  //     const pdfWrapper = document.querySelector('.pdf-wrapper');
+  //     if (pdfWrapper) {
+  //       pdfWrapper.removeEventListener('wheel', handleWheel);
+  //     }
+  //   };
+  // }, [currentPage, totalPages, enableScroll]);
 
   return (
     <div
@@ -280,10 +371,8 @@ function PDFViewer({
           scale_ratio={scale_ratio}
         />
       )}
-
       {baseWidth && (
         <PDF
-          showPagesPreview={showPagesPreview}
           baseWidth={fitPageWidth ? baseWidth : undefined}
           file={source.file || source.url}
           content={source.base64}
@@ -310,17 +399,15 @@ function PDFViewer({
         >
           {({ pdfDocument, pdfPage, canvas }) => {
             return loaded ? (
-              <div className="global-view">
+              <div className="pdf-main">
                 {showPagesPreview && (
-                  <div className="pages-preview" id="page-sidebar">
-                    <PagesPreview
-                      currentPage={currentPage}
-                      pdfDocument={pdfDocument}
-                      handlePageClick={handlePageClick}
-                    />
-                  </div>
+                  <PagesPreview
+                    currentPage={currentPage}
+                    pdfDocument={pdfDocument}
+                    handlePageClick={handlePageClick}
+                  />
                 )}
-                <div className="pdf-main"> {canvas}</div>
+                <div className="pdf"> {canvas}</div>
               </div>
             ) : (
               <LoaderComponent>{canvas}</LoaderComponent>
@@ -329,9 +416,8 @@ function PDFViewer({
         </PDF>
       )}
 
-      {showNavbar && totalPages > 1 ? (
+      {showNavbar && !loading && totalPages > 1 ? (
         <NavigationToolbar
-          ref={ref}
           page={currentPage}
           pages={totalPages}
           handleNextClick={handleNextClick}

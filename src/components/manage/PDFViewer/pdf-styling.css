@@ -106,6 +106,10 @@
   margin: 0px !important;
 }
 
-.pdf-page-preview {
-  margin: 50;
+.pdf-main {
+  display: flex;
+}
+
+.pdf {
+  margin: auto;
 }
