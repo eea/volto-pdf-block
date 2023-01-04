@@ -147,18 +147,15 @@ const PagesPreview = ({ pdfDocument, handlePageClick, currentPage }) => {
     // Get dimensions
     const pagesContainerBox = pagesContainerEl.getBoundingClientRect();
     const pagePreviewBox = pagePreviewEl.getBoundingClientRect();
-
     const top = pagePreviewBox.y - pagesContainerBox.y;
     const direction = top > 0 ? 'down' : 'up';
     const offset = pagePreviewBox.height + 48;
     const inView =
       direction === 'down'
         ? Math.abs(top + offset) <= pagesContainerBox.height
-        : Math.abs(top - offset) <= pagesContainerBox.height;
+        : Math.abs(top - offset) < 0;
     const yScroll =
-      direction === 'down'
-        ? top + offset - pagesContainerBox.height
-        : top - offset - pagesContainerBox.height;
+      direction === 'down' ? top + offset - pagesContainerBox.height : top - 30;
 
     if (!inView) {
       pagesContainerEl.scrollBy(0, yScroll);
@@ -284,17 +281,11 @@ function PDFViewer({
   const handlePrevClick = () => {
     if (currentPage === 1) return;
     setCurrentPage(currentPage - 1);
-    // document
-    //   .getElementById('page-sidebar')
-    //   .scrollTo({ top: 195 * (currentPage - 2) });
   };
 
   const handleNextClick = () => {
     if (currentPage === totalPages) return;
     setCurrentPage(currentPage + 1);
-    // document
-    //   .getElementById('page-sidebar')
-    //   .scrollTo({ top: 195 * currentPage });
   };
 
   React.useLayoutEffect(() => {
@@ -323,35 +314,6 @@ function PDFViewer({
       }
     };
   }, [currentPage, totalPages, enableScroll]);
-
-  // React.useLayoutEffect(() => {
-  //   if (!enableScroll) return;
-
-  //   function handleWheel(event) {
-  //     if (event.deltaY < 0) {
-  //       setCurrentPage(Math.max(currentPage - 1, 1));
-  //     } else if (event.deltaY > 0) {
-  //       setCurrentPage(Math.min(currentPage + 1, totalPages));
-  //     }
-
-  //     event.preventDefault();
-  //   }
-
-  //   const pdfWrapper = document.querySelector('.pdf-wrapper');
-
-  //   console.log('HERE', pdfWrapper);
-
-  //   if (pdfWrapper) {
-  //     pdfWrapper.addEventListener('wheel', handleWheel);
-  //   }
-
-  //   return () => {
-  //     const pdfWrapper = document.querySelector('.pdf-wrapper');
-  //     if (pdfWrapper) {
-  //       pdfWrapper.removeEventListener('wheel', handleWheel);
-  //     }
-  //   };
-  // }, [currentPage, totalPages, enableScroll]);
 
   return (
     <div

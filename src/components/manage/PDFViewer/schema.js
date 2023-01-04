@@ -26,6 +26,10 @@ const PDFBlockSchema = () => ({
       type: 'boolean',
       title: 'Click to download',
     },
+    showPagesPreview: {
+      type: 'boolean',
+      title: 'Show pages preview',
+    },
   },
   fieldsets: [
     {
@@ -37,6 +41,7 @@ const PDFBlockSchema = () => ({
         'disableScroll',
         'fitPageWidth',
         'clickToDownload',
+        'showPagesPreview',
         'initialPage',
       ],
     },
