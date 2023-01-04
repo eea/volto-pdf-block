@@ -113,3 +113,21 @@
 .pdf {
   margin: auto;
 }
+
+.page-wrapper {
+  margin: 16px;
+}
+
+.pdf-pages-preview {
+  display: flex;
+  width: 17%;
+  max-height: 100vh;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.highlight-page {
+  /* border: 3px solid rgb(196, 196, 196); */
+  margin: 15px;
+  box-shadow: 0 0 15px rgb(63, 196, 236);
+}
