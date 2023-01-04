@@ -3,9 +3,9 @@
 }
 
 .pdf-pages-preview {
+  display: flex;
   width: 17%;
   max-height: 100vh;
-  display: flex;
   flex-direction: column;
   overflow-y: scroll;
 }
