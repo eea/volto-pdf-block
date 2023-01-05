@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
-import { useVerticallScroll } from './useVerticallScroll';
 import PropTypes from 'prop-types';
 import config from '@plone/volto/registry';
 import PDF from './react-pdf';
@@ -10,7 +9,6 @@ import { Icon } from '@plone/volto/components';
 import zoomInSVG from '@plone/volto/icons/add.svg';
 import zoomOutSVG from '@plone/volto/icons/remove.svg';
 import downloadSVG from '@plone/volto/icons/move-down.svg';
-
 import './pdf-styling.css';
 
 // Based on
@@ -32,8 +30,6 @@ const PagesPreview = ({ pdfDocument, handlePageClick, currentPage }) => {
   const [pagesIndexes, setPagesIndexes] = useState([]);
   const [startRender, setStartRender] = useState(false);
   const height = 160;
-
-  const scrollRef = useVerticallScroll();
 
   // draw a page of the pdf
   const drawPDF = useCallback(
@@ -165,7 +161,7 @@ const PagesPreview = ({ pdfDocument, handlePageClick, currentPage }) => {
   return (
     <div ref={pagesNode} className="pdf-pages-preview">
       {pagesIndexes.map((page) => (
-        <div ref={scrollRef} key={`pdf-preview-${page + 1}-${id}`}>
+        <div key={`pdf-preview-${page + 1}-${id}`}>
           <canvas
             className={
               page === currentPage - 1 ? 'highlight-page' : 'page-wrapper'
