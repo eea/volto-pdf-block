@@ -22,7 +22,7 @@ import './commands';
 import '@cypress/code-coverage/support';
 
 // Fail Fast
-import 'cypress-fail-fast';
+import "cypress-fail-fast";
 
 export const slateBeforeEach = (contentType = 'Document') => {
   cy.autologin();
