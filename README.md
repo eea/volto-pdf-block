@@ -18,7 +18,11 @@
 
 ## Features
 
-Demo GIF
+- Flexible PDF integration in Volto.
+
+NOTE: this addon assumes that, if you're trying to load external hosted PDF
+files, you will be using
+[@eeacms/volto-corsproxy](https://github.com/eea/volto-corsproxy)
 
 ## Getting started
 
@@ -58,6 +62,58 @@ Demo GIF
 1. Go to http://localhost:3000
 
 1. Happy editing!
+
+## Internal use of PDF library
+
+```JS
+import config from '@plone/volto/registry';
+import PDF from '@mikecousins/react-pdf';
+
+
+export const PdfViwer = (props) => {
+
+return (
+  <PDF
+    file={source.file || source.url}
+    content={source.base64}
+    binaryContent={source.binary}
+    documentInitParameters={source.connection}
+    page={page}
+    scale={scale}
+    onPageRenderSuccess={onPageRenderSuccess}
+    onPageRenderFail={onPageRenderFail}
+    workerSrc={config.settings.pdfWorkerSrc}
+    onDocumentLoadSuccess={onDocumentComplete}
+  >
+    {({ pdfDocument, pdfPage, canvas }) => (
+    <>
+      {!pdfDocument && loaderComponent(canvas)}
+      {pdfDocument && canvas}
+    </>
+    )}
+  </PDF>
+)}
+```
+
+## workerSrc
+
+Allows you to specify your own url for the pdf worker.
+Default is set by the library to:
+
+```
+"//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js"
+```
+
+For cases where it is needed to have the library on a different CDN this can be configured on `config.settings.pdfWorkerSrc` the way it is done on [volto-ims-policy](https://github.com/eea/volto-ims-policy/blob/master/src/index.js) which is an add-on that centrilazes configurations for Volto for different add-ons.
+
+```JS
+const applyConfig = (config) => {
+  ...
+  // PDF worker url
+  config.settings.pdfWorkerSrc = '//www.eea.europa.eu/pdfjs/pdf.worker.min.js';
+  return config;
+};
+```
 
 ## Release
 
