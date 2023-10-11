@@ -85,6 +85,7 @@ const PDFBlockView = ({ data }) => {
           navigation={NavigationToolbar}
           showToolbar={!data.hideToolbar}
           showNavbar={!data.hideNavbar}
+          showPagesPreview={data.showPagesPreview}
           page={parseInt(data.initialPage || 1)}
           initial_scale={data.initial_scale}
           initial_scale_ratio={data.initial_scale_ratio}

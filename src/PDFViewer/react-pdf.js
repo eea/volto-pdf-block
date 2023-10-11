@@ -83,6 +83,7 @@ export const usePdf = ({
 }) => {
   const [pdfDocument, setPdfDocument] = useState();
   const [pdfPage, setPdfPage] = useState();
+  const pageRef = useRef(null);
   const renderTask = useRef(null);
   const onDocumentLoadSuccessRef = useRef(onDocumentLoadSuccess);
   const onDocumentLoadFailRef = useRef(onDocumentLoadFail);
@@ -144,9 +145,10 @@ export const usePdf = ({
 
   useEffect(() => {
     // draw a page of the pdf
-    const drawPDF = (page) => {
+    const drawPDF = () => {
       // Because this page's rotation option overwrites pdf default rotation value,
       // calculating page rotation option value from pdf default and this component prop rotate.
+      const page = pageRef.current;
       const rotation = rotate === 0 ? page.rotate : page.rotate + rotate;
       const dpRatio = window.devicePixelRatio;
       const CSS_UNITS = 96 / 72;
@@ -186,6 +188,7 @@ export const usePdf = ({
       return renderTask.current.promise.then(
         () => {
           renderTask.current = null;
+          pageRef.current = null;
 
           if (isFunction(onPageRenderSuccessRef.current)) {
             onPageRenderSuccessRef.current(page, canvasEl, viewport);
@@ -196,7 +199,7 @@ export const usePdf = ({
 
           // @ts-ignore typings are outdated
           if (err && err.name === 'RenderingCancelledException') {
-            drawPDF(page);
+            drawPDF();
           } else if (isFunction(onPageRenderFailRef.current)) {
             onPageRenderFailRef.current();
           }
@@ -213,7 +216,8 @@ export const usePdf = ({
             onPageLoadSuccessRef.current(loadedPdfPage);
           }
 
-          drawPDF(loadedPdfPage);
+          pageRef.current = loadedPdfPage;
+          drawPDF();
         },
         () => {
           if (isFunction(onPageLoadFailRef.current)) {
