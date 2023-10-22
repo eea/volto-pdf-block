@@ -177,7 +177,7 @@ function PDFViewer({
           scale_ratio={scale_ratio}
         />
       )}
-      {baseWidth && (
+      {baseWidth > 0 && (
         <PDF
           baseWidth={fitPageWidth ? baseWidth * CSS_UNITS : undefined}
           file={source.file || source.url}
