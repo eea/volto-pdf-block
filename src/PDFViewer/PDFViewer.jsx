@@ -100,14 +100,10 @@ function PDFViewer({
   const [loading, setLoading] = React.useState(true);
   const [loaded, setLoaded] = React.useState(false);
 
-  const nodeRef = React.useRef();
+  // const nodeRef = React.useRef();
   const [scale_ratio, setScale_ratio] = React.useState(initial_scale_ratio);
   const [scale, setScale] = React.useState(initialScale);
   const [baseWidth, setBaseWidth] = React.useState();
-
-  React.useLayoutEffect(() => {
-    setBaseWidth(nodeRef.current.clientWidth);
-  }, []);
 
   React.useEffect(() => {
     setCurrentPage(page || 1);
@@ -161,7 +157,11 @@ function PDFViewer({
 
   return (
     <div
-      ref={nodeRef}
+      ref={(node, x, y) => {
+        if (node && node.clientWidth && node.clientWidth !== baseWidth) {
+          setBaseWidth(node.clientWidth);
+        }
+      }}
       className={
         !loading && css
           ? cx(css, 'pdf-wrapper')
