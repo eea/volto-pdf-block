@@ -76,7 +76,7 @@ const PDFBlockView = ({ data }) => {
       {data.clickToDownload && size && (
         <DownloadOverlay url={dataUrl} size={size} />
       )}
-      {dataUrl && (
+      {dataUrl ? (
         <LoadablePDFViewer
           document={{
             url: dataUrl,
@@ -98,7 +98,7 @@ const PDFBlockView = ({ data }) => {
               setSize([`${width / ratio}px`, `${height / ratio}px`]);
           }}
         />
-      )}
+      ) : null}
     </div>
   );
 };
