@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import loadable from '@loadable/component';
 import { Button } from 'semantic-ui-react';
 import { Icon } from '@plone/volto/components';
+import cx from 'classnames';
 
 import config from '@plone/volto/registry';
 import { flattenToAppURL } from '@plone/volto/helpers';
 
 import NavigationToolbar from './PDFNavigation';
 
-import { urlToCorsProxy } from '../../helpers';
+import { urlToCorsProxy } from '../helpers';
 
 import downloadSVG from '@plone/volto/icons/move-down.svg';
 
@@ -33,9 +34,6 @@ const DownloadOverlay = ({ url, size }) => {
       style={{
         width: size[0],
         height: size[1],
-        position: 'absolute',
-        background: 'rgb(204, 204, 204, 0.5)',
-        zIndex: 2,
       }}
     >
       <div className="icon-wrapper">
@@ -57,9 +55,24 @@ const PDFBlockView = ({ data }) => {
         : urlToCorsProxy(data.url))) ||
     null;
   const [size, setSize] = React.useState();
+  const [baseWidth, setBaseWidth] = React.useState();
+  const nodeRef = React.useRef();
+
+  React.useLayoutEffect(() => {
+    let observer = new ResizeObserver((entries) => {
+      setBaseWidth(nodeRef.current.clientWidth);
+    });
+    observer.observe(nodeRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className="pdf-viewer-block">
+    <div
+      className={cx('pdf-viewer-block', {
+        'click-to-download': data.clickToDownload,
+      })}
+      ref={nodeRef}
+    >
       {data.clickToDownload && size && (
         <DownloadOverlay url={dataUrl} size={size} />
       )}
@@ -79,10 +92,11 @@ const PDFBlockView = ({ data }) => {
           enableScroll={!data.disableScroll}
           fitPageWidth={data.fitPageWidth}
           onPageRenderSuccess={(page, canvasEl, viewport) => {
-            setSize([
-              `${Math.round(viewport.width / CSS_UNITS)}px`,
-              `${Math.round(viewport.height / CSS_UNITS)}px`,
-            ]);
+            const width = Math.round(viewport.viewBox[2] * CSS_UNITS);
+            const height = Math.round(viewport.viewBox[3] * CSS_UNITS);
+            const ratio = width / baseWidth;
+            viewport.viewBox &&
+              setSize([`${width / ratio}px`, `${height / ratio}px`]);
           }}
         />
       )}
