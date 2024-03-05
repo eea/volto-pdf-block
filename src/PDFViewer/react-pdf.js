@@ -2,7 +2,7 @@
 // https://github.com/mikecousins/react-pdf-js/blob/9afbc77a15105fb8b0332dc0e531e27ec049dad2/src/index.tsx
 
 import pdfjs from 'pdfjs-dist';
-import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 function isFunction(value) {
   return typeof value === 'function';
@@ -153,11 +153,10 @@ export const usePdf = ({
       const dpRatio = window.devicePixelRatio;
       const CSS_UNITS = 96 / 72;
       let adjustedScale = scale * dpRatio;
-      adjustedScale = baseWidth
-        ? (baseWidth / page.getViewport({ scale: 1, rotation }).width) *
-        CSS_UNITS *
-        1.0 // coeficient to make it look good
-        : adjustedScale;
+      const cssUnits = CSS_UNITS * 1.0; // coeficient to make it look good
+      const adjusted =
+        (baseWidth / page.getViewport({ scale: 1, rotation }).width) * cssUnits;
+      adjustedScale = baseWidth ? adjusted : adjustedScale;
       const viewport = page.getViewport({ scale: adjustedScale, rotation });
       const canvasEl = canvasRef.current;
       if (!canvasEl) {
