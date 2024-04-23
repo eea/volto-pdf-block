@@ -1,7 +1,7 @@
 // Adopted copy of MIT licensed
 // https://github.com/mikecousins/react-pdf-js/blob/9afbc77a15105fb8b0332dc0e531e27ec049dad2/src/index.tsx
 
-import pdfjs from '@bundled-es-modules/pdfjs-dist';
+import pdfjs from 'pdfjs-dist';
 import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
 
 function isFunction(value) {
