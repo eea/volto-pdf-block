@@ -62,7 +62,7 @@ function Edit(props) {
     content,
   } = props;
 
-  const schema = React.useMemo(() => PDFBlockSchema(), []);
+  const schema = React.useMemo(() => PDFBlockSchema(props.intl), []);
   const prevRequest = usePrevious(request) || {};
   const id = content['@id'];
 

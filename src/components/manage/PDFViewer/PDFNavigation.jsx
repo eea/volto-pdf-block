@@ -4,9 +4,25 @@ import PropTypes from 'prop-types';
 import { Icon } from '@plone/volto/components';
 import prevSVG from '@plone/volto/icons/left-key.svg';
 import nextSVG from '@plone/volto/icons/right-key.svg';
+import { defineMessages, useIntl } from 'react-intl';
+
+const messages = defineMessages({
+  nextPage: {
+    id: 'Next Page',
+    defaultMessage: 'Next Page',
+  },
+  previousPage: {
+    id: 'Previous Page',
+    defaultMessage: 'Previous Page',
+  },
+  of: {
+    id: 'of',
+    defaultMessage: 'of',
+  },
+});
 
 export const CustomPrevButton = (props) => {
-  const { page, handlePrevClick } = props;
+  const { page, handlePrevClick, intl } = props;
   if (page === 1) {
     return (
       <button className="pdf-toolbar-btn disabled-btn">
@@ -18,7 +34,7 @@ export const CustomPrevButton = (props) => {
   return (
     <button
       className="pdf-toolbar-btn"
-      title="Previous Page"
+      title={intl.formatMessage(messages.previousPage)}
       onClick={handlePrevClick}
     >
       <Icon name={prevSVG} size="20px" />
@@ -33,7 +49,7 @@ CustomPrevButton.propTypes = {
 };
 
 export const CustomNextButton = (props) => {
-  const { page, pages, handleNextClick } = props;
+  const { page, pages, handleNextClick, intl } = props;
   if (page === pages) {
     return (
       <button className="pdf-toolbar-btn disabled-btn">
@@ -45,7 +61,7 @@ export const CustomNextButton = (props) => {
   return (
     <button
       className="pdf-toolbar-btn"
-      title="Next Page"
+      title={intl.formatMessage(messages.nextPage)}
       onClick={handleNextClick}
     >
       <Icon name={nextSVG} size="20px" />
@@ -60,10 +76,10 @@ CustomNextButton.propTypes = {
 };
 
 export const CustomPages = (props) => {
-  const { page, pages } = props;
+  const { page, pages, intl } = props;
   return (
     <p className="pdf-pages">
-      {page} of {pages}
+      {page} {intl.formatMessage(messages.of)} {pages}
     </p>
   );
 };
@@ -74,22 +90,25 @@ CustomPages.propTypes = {
 
 const CustomNavigation = (props) => {
   const { page, pages, handlePrevClick, handleNextClick } = props;
+  const intl = useIntl();
 
   return (
     <div className="pdf-toolbar pdf-toolbar-bottom">
       <div>
         <CustomPrevButton
+          intl={intl}
           page={page}
           pages={pages}
           handlePrevClick={handlePrevClick}
         />
         <CustomNextButton
+          intl={intl}
           page={page}
           pages={pages}
           handleNextClick={handleNextClick}
         />
       </div>
-      <CustomPages page={page} pages={pages} />
+      <CustomPages page={page} pages={pages} intl={intl} />
     </div>
   );
 };
