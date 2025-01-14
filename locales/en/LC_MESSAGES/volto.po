@@ -39,6 +39,11 @@ msgstr ""
 msgid "Origin"
 msgstr ""
 
+#. Default: "PDF Viewer"
+#: components/manage/PDFViewer/schema
+msgid "PDF Viewer"
+msgstr ""
+
 #. Default: "Please remove all @'s in pdf direct download url."
 #: components/manage/PDFViewer/UploadWidget
 msgid "Please remove all @'s in pdf direct download url."

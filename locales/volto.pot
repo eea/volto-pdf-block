@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Plone\n"
-"POT-Creation-Date: 2025-01-13T09:17:43.770Z\n"
+"POT-Creation-Date: 2025-01-14T11:16:23.284Z\n"
 "Last-Translator: Plone i18n <plone-i18n@lists.sourceforge.net>\n"
 "Language-Team: Plone i18n <plone-i18n@lists.sourceforge.net>\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -39,6 +39,11 @@ msgstr ""
 #: components/manage/PDFViewer/BlockEdit
 #: components/manage/PDFViewer/UploadWidget
 msgid "Origin"
+msgstr ""
+
+#. Default: "PDF Viewer"
+#: components/manage/PDFViewer/schema
+msgid "PDF Viewer"
 msgstr ""
 
 #. Default: "Please remove all @'s in pdf direct download url."
