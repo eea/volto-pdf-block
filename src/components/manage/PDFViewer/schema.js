@@ -37,6 +37,10 @@ const messages = defineMessages({
     id: 'default',
     defaultMessage: 'Default',
   },
+  pdfViewer: {
+    id: 'PDF Viewer',
+    defaultMessage: 'PDF Viewer',
+  },
 });
 
 const PDFBlockSchema = (intl) => ({
