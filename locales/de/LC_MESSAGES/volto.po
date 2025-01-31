@@ -11,4 +11,95 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#. Default: "Browse the site, drop a PDF document or type an URL"
+#: components/manage/PDFViewer/BlockEdit
+#: components/manage/PDFViewer/UploadWidget
+msgid "Browse the site, drop a PDF document or type an URL"
+msgstr "Durchsuchen Sie die Website, legen Sie ein PDF-Dokument ab oder geben Sie eine URL ein."
 
+#. Default: "External URL"
+#: components/manage/PDFViewer/BlockEdit
+#: components/manage/PDFViewer/UploadWidget
+msgid "External URL"
+msgstr "Externe URL"
+
+#. Default: "Next Page"
+#: components/manage/PDFViewer/PDFNavigation
+msgid "Next Page"
+msgstr "Nächste Seite"
+
+#. Default: "No PDF selected"
+#: components/manage/PDFViewer/BlockEdit
+msgid "No PDF selected"
+msgstr "Kein PDF ausgewählt"
+
+#. Default: "Origin"
+#: components/manage/PDFViewer/BlockEdit
+#: components/manage/PDFViewer/UploadWidget
+msgid "Origin"
+msgstr "Herkunft"
+
+#. Default: "PDF Viewer"
+#: components/manage/PDFViewer/schema
+msgid "PDF Viewer"
+msgstr "PDF-Betrachter"
+
+#. Default: "Please remove all @'s in pdf direct download url."
+#: components/manage/PDFViewer/UploadWidget
+msgid "Please remove all @'s in pdf direct download url."
+msgstr "Bitte entfernen Sie alle @'s in der direkten pdf-Download-URL."
+
+#. Default: "Previous Page"
+#: components/manage/PDFViewer/PDFNavigation
+msgid "Previous Page"
+msgstr "Seite zurück"
+
+#. Default: "Click to download"
+#: components/manage/PDFViewer/schema
+msgid "clickToDownload"
+msgstr "Klicken Sie zum Herunterladen"
+
+#. Default: "Default"
+#: components/manage/PDFViewer/schema
+msgid "default"
+msgstr "Standard"
+
+#. Default: "Disable page scroll"
+#: components/manage/PDFViewer/schema
+msgid "disableScroll"
+msgstr "Scrollen der Seite deaktivieren"
+
+#. Default: "Fit page width"
+#: components/manage/PDFViewer/schema
+msgid "fitPageWidth"
+msgstr "Seitenbreite anpassen"
+
+#. Default: "Hide navbar"
+#: components/manage/PDFViewer/schema
+msgid "hideNavbar"
+msgstr "Navbar ausblenden"
+
+#. Default: "Hide toolbar"
+#: components/manage/PDFViewer/schema
+msgid "hideToolbar"
+msgstr "Toolbar ausblenden"
+
+#. Default: "Initial page"
+#: components/manage/PDFViewer/schema
+msgid "initialPage"
+msgstr "Anfangsseite"
+
+#. Default: "of"
+#: components/manage/PDFViewer/PDFNavigation
+msgid "of"
+msgstr "von"
+
+#. Default: "PDF Block"
+#: components/manage/PDFViewer/schema
+msgid "pdfBlockTitle"
+msgstr ""
+
+#. Default: "Show pages preview"
+#: components/manage/PDFViewer/schema
+msgid "showPagesPreview"
+msgstr "Seitenvorschau anzeigen"

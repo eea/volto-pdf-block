@@ -1,16 +1,107 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Plone\n"
-"POT-Creation-Date: 2023-06-28T10:48:22.678Z\n"
+"POT-Creation-Date: 2025-01-14T11:16:23.284Z\n"
 "Last-Translator: Plone i18n <plone-i18n@lists.sourceforge.net>\n"
 "Language-Team: Plone i18n <plone-i18n@lists.sourceforge.net>\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
 "Language-Code: en\n"
 "Language-Name: English\n"
 "Preferred-Encodings: utf-8\n"
 "Domain: volto\n"
 
+#. Default: "Browse the site, drop a PDF document or type an URL"
+#: components/manage/PDFViewer/BlockEdit
+#: components/manage/PDFViewer/UploadWidget
+msgid "Browse the site, drop a PDF document or type an URL"
+msgstr ""
 
+#. Default: "External URL"
+#: components/manage/PDFViewer/BlockEdit
+#: components/manage/PDFViewer/UploadWidget
+msgid "External URL"
+msgstr ""
+
+#. Default: "Next Page"
+#: components/manage/PDFViewer/PDFNavigation
+msgid "Next Page"
+msgstr ""
+
+#. Default: "No PDF selected"
+#: components/manage/PDFViewer/BlockEdit
+msgid "No PDF selected"
+msgstr ""
+
+#. Default: "Origin"
+#: components/manage/PDFViewer/BlockEdit
+#: components/manage/PDFViewer/UploadWidget
+msgid "Origin"
+msgstr ""
+
+#. Default: "PDF Viewer"
+#: components/manage/PDFViewer/schema
+msgid "PDF Viewer"
+msgstr ""
+
+#. Default: "Please remove all @'s in pdf direct download url."
+#: components/manage/PDFViewer/UploadWidget
+msgid "Please remove all @'s in pdf direct download url."
+msgstr ""
+
+#. Default: "Previous Page"
+#: components/manage/PDFViewer/PDFNavigation
+msgid "Previous Page"
+msgstr ""
+
+#. Default: "Click to download"
+#: components/manage/PDFViewer/schema
+msgid "clickToDownload"
+msgstr ""
+
+#. Default: "Default"
+#: components/manage/PDFViewer/schema
+msgid "default"
+msgstr ""
+
+#. Default: "Disable page scroll"
+#: components/manage/PDFViewer/schema
+msgid "disableScroll"
+msgstr ""
+
+#. Default: "Fit page width"
+#: components/manage/PDFViewer/schema
+msgid "fitPageWidth"
+msgstr ""
+
+#. Default: "Hide navbar"
+#: components/manage/PDFViewer/schema
+msgid "hideNavbar"
+msgstr ""
+
+#. Default: "Hide toolbar"
+#: components/manage/PDFViewer/schema
+msgid "hideToolbar"
+msgstr ""
+
+#. Default: "Initial page"
+#: components/manage/PDFViewer/schema
+msgid "initialPage"
+msgstr ""
+
+#. Default: "of"
+#: components/manage/PDFViewer/PDFNavigation
+msgid "of"
+msgstr ""
+
+#. Default: "PDF Block"
+#: components/manage/PDFViewer/schema
+msgid "pdfBlockTitle"
+msgstr ""
+
+#. Default: "Show pages preview"
+#: components/manage/PDFViewer/schema
+msgid "showPagesPreview"
+msgstr ""
