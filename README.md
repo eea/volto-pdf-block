@@ -26,9 +26,22 @@ files, you will be using
 
 ## Getting started
 
+### Try volto-pdf-block with Docker
+
+      git clone https://github.com/eea/volto-pdf-block.git
+      cd volto-pdf-block
+      make
+      make start
+
+Go to http://localhost:3000
+
 ### Add volto-pdf-block to your Volto project
 
 1. Make sure you have a [Plone backend](https://plone.org/download) up-and-running at http://localhost:8080/Plone
+
+   ```Bash
+   docker compose up backend
+   ```
 
 1. Start Volto frontend
 
