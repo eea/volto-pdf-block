@@ -24,6 +24,8 @@ NOTE: this addon assumes that, if you're trying to load external hosted PDF
 files, you will be using
 [@eeacms/volto-corsproxy](https://github.com/eea/volto-corsproxy)
 
+[PDF Block](https://raw.githubusercontent.com/eea/volto-pdf-block/master/docs/volto-pdf-block.png)
+
 ## Getting started
 
 ### Try volto-pdf-block with Docker
